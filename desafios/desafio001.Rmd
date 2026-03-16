@@ -1,0 +1,63 @@
+---
+title: "Game of Thrones: The Rise of Queens"
+output: html_document
+date: "2026-03-15"
+---
+
+![](images/got.png)
+
+# Desafio 01 (Primeira Tarefa Avaliativa)
+
+Para esta atividade, trabalharemos com um *dataset* sobre a presença feminina em parlamentos de diferentes países do mundo. A base de dados encontra-se disponível no site GapMinder (https://www.gapminder.org/). **Identificar e obter esse *dataset* faz parte da etapa exploratória da tarefa.**
+
+## Objetivo pedagógico da tarefa avaliativa
+
+Avaliar a capacidade do estudante de:
+
+i) importar dados no R;
+ii) manipular *data frames*;
+iii) utilizar operadores;
+iv) criar novos objetos;
+v) utilizar indexação e subconjuntos;
+vi) produzir código organizado e reproduzível.
+
+## Da entrega
+
+A entrega será composta, **obrigatoriamente,** por três arquivos:
+
+1) Um arquivo de extensão `.RData` contendo apenas o *dataset* completo, tratado de acordo com as instruções apresentadas a seguir.
+
+2) Um arquivo de extensão `.RData` contendo apenas o *dataset* referente aos países da América Latina, tratado de acordo com as instruções apresentadas a seguir.
+
+3) Um arquivo de extensão `.R` contendo todos os códigos utilizados, apresentados em ordem cronológica das etapas de tratamento dos dados e devidamente comentados.
+
+## Das instruções gerais
+
+O *script* deverá estar escrito em português brasileiro, devidamente organizado e operacional, **devendo rodar sem erros do início ao fim.**
+
+**O uso de inteligência artificial é permitido,** porém o estudante deve compreender o código entregue. **Por essa razão, o professor poderá solicitar, em sala de aula, explicações sobre qualquer parte da solução apresentada, a qualquer momento.**
+
+## Das instruções específicas
+
+Os *datasets* finais deverão conter apenas dois tipos de variáveis:
+
+- variáveis categóricas (obrigatoriamente no formato *factor*);
+
+- variáveis métricas.
+
+Os nomes das colunas deverão estar em português brasileiro.
+
+Nos códigos deverão constar as respostas às seguintes perguntas:
+
+a) Quantos países existem no *dataset*?
+b) Quantas variáveis (colunas) existem no *dataset*?
+c) Quais são os nomes das duas primeiras colunas?
+d) Qual é a percentagem média de mulheres no parlamento do Brasil entre 2000 e 2021?
+e) Qual é o valor máximo registrado no Brasil?
+f) Em qual ano ocorreu esse valor máximo?
+g) Qual país possui maior presença feminina no parlamento em 2021?
+h) Qual país possui menor presença feminina no parlamento em 2021?
+
+Os códigos também deverão contemplar a criação de uma nova coluna que identifique os países que possuem mais de 40% de mulheres no parlamento em 2021.
+
+Ao final do *script*, escreva um comentário respondendo à seguinte pergunta: O Brasil está acima ou abaixo da média mundial em 2021?
