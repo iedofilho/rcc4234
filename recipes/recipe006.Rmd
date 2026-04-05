@@ -518,7 +518,7 @@ Construa uma rotina em que o R faça o seguinte:
 
 ---
 
-### Agrupando Variáveis e Gerando Relatórios Específicos com as Funções `group_by()` e `summarise()`:
+### Agrupando Variáveis e Gerando Relatórios Específicos com as Funções `group_by()` e `reframe()`:
 
 Até aqui, aprendemos a filtrar observações, selecionar variáveis, modificar colunas e organizar resultados. Porém, em muitas situações, não queremos apenas olhar para os dados individualmente. Queremos, na verdade, gerar pequenos relatórios sintéticos, resumindo o comportamento dos dados em função de algum grupo.
 
@@ -527,7 +527,7 @@ Por exemplo, suponha que desejássemos calcular a média dos pesos por espécie 
 Nesse caso, precisaríamos dizer ao R algo como: **“R, separe os dados por espécie. Depois, dentro de cada espécie, calcule a média dos pesos.”**
 
 
-Noutras palavras, antes de calcular a média, precisamos agrupar os dados. Para isso, utilizamos a função `group_by()`. Em seguida, para gerar o resumo estatístico, utilizamos a função `summarise()`.
+Noutras palavras, antes de calcular a média, precisamos agrupar os dados. Para isso, utilizamos a função `group_by()`. Em seguida, para gerar o resumo estatístico, utilizamos a função `reframe()`.
 
 Vamos começar agrupando os dados por espécie:
 ```{r}
@@ -541,11 +541,11 @@ Mas aconteceu, sim.
 
 O que houve foi que o R passou a entender que a base de dados está agrupada pela variável `especie`. Isso significa que, a partir dali, várias funções passam a operar dentro de cada grupo, e não mais sobre a base inteira.
 
-Agora veja o que acontece quando acrescentamos a função `summarise()`:
+Agora veja o que acontece quando acrescentamos a função `reframe()`:
 ```{r}
 personagens_starwars |> 
   group_by(especie) |> 
-  summarise(media_pesos = mean(peso, na.rm = TRUE))
+  reframe(media_pesos = mean(peso, na.rm = TRUE))
 ```
 
 Agora sim temos um relatório sintético: o R apresenta uma linha para cada espécie e, para cada uma delas, calcula a média da variável `peso`.
@@ -555,13 +555,13 @@ Se quiséssemos calcular a média das alturas por espécie e por gênero, bastar
 ```{r}
 personagens_starwars |> 
   group_by(especie, genero) |> 
-  summarise(media_alturas = mean(altura, na.rm = TRUE))
+  reframe(media_alturas = mean(altura, na.rm = TRUE))
 ```
 
 Nesse caso, o R passa a considerar cada combinação entre espécie e gênero como um grupo distinto.
 
 
-As funções `group_by()` e `summarise()` formam uma das combinações mais poderosas do `dplyr`.
+As funções `group_by()` e `reframe()` formam uma das combinações mais poderosas do `dplyr`.
 
 Com elas, conseguimos responder perguntas como:
 

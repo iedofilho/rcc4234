@@ -1,0 +1,646 @@
+---
+title: "Edge of ~~Tomorrow~~ Iteration"
+output: html_document
+date: "2026-03-27"
+---
+
+![](images/edge.png)
+*É... acho que você já entendeu que isso aqui não é um passeio. É sobrevivência mesmo.*
+
+<br>
+
+Seguimos no tema "Programação no R: Funções e Iteração". Já vimos a criação de funções na *Recipe 8* e as funções condicionais na *Recipe 9*. **Agora, entramos em um novo ponto: funções iterativas (*loops*) e vetorização.**
+
+Aqui, vamos trabalhar com três estruturas: `for`, `while` e `repeat`.
+
+Sendo bem direto: dentro da realidade de um mestrando ou doutorando em Ciências Sociais, quando surgir a necessidade de iteração, na maioria dos casos o `for` vai resolver o problema.
+
+Ainda assim, peço atenção ao `while` e ao `repeat`. Eles aparecem menos, mas quando aparecem, costumam exigir um pouco mais de controle lógico, e não saber usar pode te travar.
+
+**Porém, aqui vai um ponto importante: eu não vou gastar a cabeça de vocês aprofundando essas estruturas além do necessário.**
+
+A ideia é entender a essência dos *loops* e, a partir disso, dar um passo além.
+
+Porque, no R, muitas vezes o melhor caminho não é iterar… é evitar a iteração. É aí que entra a vetorização.
+
+## A função iterativa `for`
+
+**Iterar significa repetir uma operação seguindo uma regra.**
+
+No dia a dia, fazemos isso o tempo todo. Pensem, por exemplo, em um professor corrigindo provas. Observe esse pseudo-algoritmo:
+
+```{r eval = F}
+# Calcular a média de notas de 5 alunos:
+
+Para cada aluno de 1 a 5 {
+
+Aluno 1 {calcular média}
+Aluno 2 {calcular média}
+Aluno 3 {calcular média}
+Aluno 4 {calcular média}
+Aluno 5 {calcular média}
+
+Encerrar cálculo
+
+}
+```
+
+**Percebam a lógica: existe um conjunto conhecido (5 alunos), e a mesma operação é aplicada a cada elemento desse conjunto. Isso é exatamente o que o `for` faz.**
+
+Vamos começar com um exemplo simples. Já aviso que há uma boa chance de você não entender de primeira. Eu demorei um bom tempo para pegar o espírito da coisa, e isso é completamente normal.
+
+Com prática, estudo e repetição, as coisas se assentam. Prometo!
+
+Vamos lá.
+
+Vamos criar um objeto chamado `x` e atribuir a ele o valor `10`:
+```{r}
+x <- 10
+```
+
+Tranquilo até aqui, certo?
+
+Agora, vamos repetir uma operação 5 vezes. Em cada repetição, queremos somar o valor de` x` com o número da iteração.
+
+Posto isso:
+
+- na primeira repetição: `10 + 1 = 11`;
+- na segunda: `10 + 2 = 12`;
+- …
+- na quinta: `10 + 5 = 15`.
+
+Logo, esperamos obter: `11`, `12`, `13`, `14` e `15`.
+
+Primeiramente, observem a seguinte rotina:
+```{r}
+for(i in 1:5){
+  print(x + i)
+}
+```
+**A primeira pergunta, SEM DÚVIDAS, será: de onde surgiu esse tal de `i`?**
+
+Vamos por partes.
+
+Observem a estrutura: `for(i in 1:5)`.
+
+A palavra `for` pode ser lida como “para cada”, e `in` como “dentro de”. Assim, estamos dizendo: **Para cada valor de `i` dentro da sequência de `1` a `5`, faça algo.**
+
+O `i` nasce ali mesmo. Ele é uma variável auxiliar que assume, automaticamente, os valores `1`, depois `2`, depois `3`, até `5`. A cada passo do *loop*, o valor de `i` muda, e é isso que permite controlar a repetição.
+
+O uso da letra `i` não é por acaso. Na Matemática, ela é frequentemente utilizada como índice. Em Ciência de Dados, é muito comum utilizá-la para indicar posições ou linhas.
+
+Observem a tabela a seguir:
+```{r}
+tabela <- data.frame(A = c(2,4,5,9,10,100),
+                     B = c(5,0,7,3,315,-76),
+                     C = factor(c("sim","não","não","sim","não","sim")))
+
+tabela
+```
+Se eu pedisse simplesmente o valor de $A$, isso seria ambíguo, já que há vários valores possíveis.
+
+Porém, se eu perguntar o valor de $A_i$, com $i = 5$, a resposta é clara: $A_5 = 10$, pois o quinto elemento da coluna $A$ é $10$.
+
+Da mesma forma, se eu perguntar o valor de $C_i$ quando $i = 2$, a resposta é $C_2 = não$.
+
+Pois é exatamente isso que o `i` faz no nosso algoritmo: ele indica em qual passo da repetição estamos.
+
+Vamos observar a rotina proposta mais uma vez:
+```{r}
+for(i in 1:5){
+  print(x + i)
+}
+```
+
+Assim sendo, o que a rotina anterior diz, ao ser traduzida para o português, é o seguinte: **R, para cada valor inteiro presente na sequência de `1` a `5`, sendo que cada valor dessa sequência será representado por `i`, imprima o resultado da soma entre `x` (que vale `10`, neste momento) e `i`.**
+
+Daí, obtemos as respostas `11`, `12`, `13`, `14` e `15`:
+```{r}
+for(i in 1:5){
+  print(x + i)
+}
+```
+*Peraí… então `i` poderia ser substituído por qualquer outro nome?*
+
+**Exatamente. O nome `i` é apenas uma convenção e você pode usar qualquer identificador válido.**
+
+Observem:
+```{r}
+for(numero in 1:5){
+  print(x + numero)
+}
+```
+
+O comportamento é exatamente o mesmo. O que muda é apenas o nome da variável que representa cada passo da iteração.
+
+**ATENÇÃO:** Apesar de qualquer nome funcionar, usar `i` é uma convenção amplamente adotada, e seguir convenções também faz parte de escrever código de qualidade!
+
+Isso ajuda a evitar coisas tipo:
+```{r eval = F}
+for(minha_variavel_super_importante_da_iteracao in 1:5)
+```
+
+Entendido?
+
+---
+
+**Ok, vocês entenderam como repetir. Agora vamos falar de quando NÃO repetir.**
+
+O que quero dizer é que tudo isso funciona. Porém, aqui vai um ponto importante: em R, esse tipo de problema raramente é resolvido com `for`. E mais: se você sair usando `for` para tudo, você vai escrever código pior, mais lento, mais difícil de ler e mais difícil de manter.
+
+### Vetorizando a essência do `for`
+
+Vamos voltar ao nosso exemplo:
+```{r}
+x <- 10
+
+for(i in 1:5){
+  print(x + i)
+}
+```
+Esse problema pode ser, de forma mais simples, resolvido sem usar um *loop*:
+```{r}
+x + 1:5
+```
+
+**No R, operações são vetorizadas.**
+
+Quando fazemos `x + 1:5`, o R soma automaticamente `x` com cada elemento do vetor `1:5`:
+
+- `10 + 1`
+- `10 + 2`
+- …
+- `10 + 5`
+
+Viram? Mesmo resultado. Sem *loop*. Menos código. Mais claro. Mais idiomático em R.
+
+**No R, você não foi feito para pensar em repetir.** Você foi feito para pensar em vetores.
+
+Sempre que você pensar em usar `for`, pare e se pergunte: “Isso aqui não poderia ser feito de forma vetorizada?”
+
+Na maioria das vezes, a resposta é sim.
+
+Vamos a um segundo exemplo. A ideia será utilizar as funções `if`, `else` e `ifelse()` para identificar, numa sequência numérica, qual deles é par ou ímpar. 
+
+--- 
+
+Para tanto, vamos utilizar o operador `%%`. O operador `%%` retorna o resto de uma divisão. Veja:
+
+```{r}
+5 %% 5
+5 %% 4
+5 %% 3
+5 %% 2
+5 %% 1
+```
+
+---
+
+Apresentando nosso exemplo de identificação de números pares e ímpares com as funções `if`, `else` e `ifelse()`:
+
+
+***Loop:***
+```{r}
+for(i in 1:5){
+  
+  print(
+    if(i %% 2 == 0){
+      
+      "par"
+      
+    } else {
+      
+      "ímpar"
+      
+    }
+    )
+  
+}
+```
+**Vetorizado:**
+```{r}
+ifelse(test = 1:5 %% 2 == 0,
+       yes = "par",
+       no = "ímpar")
+```
+
+Se eu ainda não te convenci que vetorizar é sempre melhor, mas propor um exemplo com uma quantidade maior de dados. Vamos supor cem milhões de iterações, e calcular o tempo gasto entre a abordagem de *loop* e vetorização com a função `system.time()`.
+
+Basicamente, vamos usar o exemplo de `x <- 10`, e somar `x` iteradamente com números de 1 a 100 milhões.
+
+```{r}
+n <- 10 ^ 8
+x <- 10
+
+# Loop
+tempo_for <- system.time({
+  resultado_for <- numeric(n)
+  for(i in 1:n){
+    resultado_for[i] <- x + i
+  }
+})
+
+# Vetorização
+tempo_vec <- system.time({
+  resultado_vec <- x + 1:n
+})
+
+tempo_for
+tempo_vec
+
+```
+
+No meu computador `tempo_for` indicou um tempo gasto aproximado de 14 segundos pelo *loop* para uma operação matemática simples de se somar 10, iteradamente, com uma sequência numérica de 1 a 100 mil. **Por outro lado, a vetorização (`tempo_vec`) gastou só 0,19 segundos para a mesma tarefa.**
+
+
+Além de mais simples, a vetorização também tende a ser mais eficiente, o que reforça ainda mais a preferência no R.
+
+---
+
+*Rafa, legal! Mas se vetorização é melhor na maioria dos casos, por que estamos estudando iteração?*
+
+<br>
+
+**Essa é a pergunta de um milhão de dólares!**
+
+A resposta sincera é: porque a iteração mostra o que está acontecendo por baixo dos panos.
+
+Se você entende iteração, você entende vetorização. Se você pula essa etapa, você acaba só decorando função, e isso não sustenta no longo prazo.
+
+Portanto, meus sobreviventes: *loop* não é o destino. Ele é o caminho para entender como o R pensa!
+
+---
+
+**Exercício 01**
+
+Considere o vetor:
+```{r}
+x <- c(2, 4, 6, 8, 10)
+```
+
+a) Usando `for`:
+
+Crie um vetor chamado resultado em que cada elemento seja o valor de `x` somado com sua posição.
+
+Exemplo esperado:
+
+- `2 + 1`
+- `4 + 2`
+- `6 + 3`
+- …
+
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `for`.
+
+<br>
+
+**Exercício 02**
+
+Considere o vetor:
+```{r}
+x <- c(5, 12, 8, 20, 3)
+```
+
+a) Usando `for`:
+
+Crie um vetor onde:
+
+- valores maiores que 10 são multiplicados por 2;
+- valores menores ou iguais a 10 são mantidos.
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `for`.
+
+<br>
+
+**Exercício 03**
+
+Considere:
+```{r}
+x <- c(1, 2, 3, 4, 5)
+```
+
+a) Usando `for`:
+
+Crie um vetor com a soma acumulada:
+
+- `1`
+- `1 + 2 = 3`
+- `1 + 2 + 3 = 6`
+- ...
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `for`.
+
+<br>
+
+**Exercício 04**
+
+Considere:
+```{r}
+x <- c(1, 2, 3, 4, 5)
+y <- c(5, 4, 3, 2, 1) 
+```
+
+a) Usando `for`:
+
+Crie um vetor com a soma elemento a elemento de `x` e `y`.
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `for`.
+
+---
+
+Se você só conseguir usar `for` em todos, tudo bem.
+
+Se você conseguiu evitar `for` em alguns, melhor ainda!
+
+Se você conseguiu evitar `for` na maioria, você começou a pensar como alguém que programa bem em R!
+
+<br>
+
+## A função iterativa `while`
+
+Enquanto o `for` é utilizado quando sabemos quantas vezes queremos repetir uma operação, o `while` é utilizado quando **não sabemos exatamente quantas vezes a repetição vai ocorrer**.
+
+Em muitas situações do dia a dia, repetimos um comportamento até atingir um determinado resultado. Imagine, por exemplo, o ato de bater um prego na parede para fixar um quadro.
+
+Um pseudo-algoritmo para essa tarefa seria:
+```{r eval = F}
+Posicionar o prego no local desejado e segurar um martelo:
+
+Enquanto o prego não estiver fixo corretamente {
+
+  Primeira batida {não suficiente}  
+  Segunda batida {não suficiente}  
+  Terceira batida {não suficiente}  
+  Quarta batida {não suficiente}  
+  Quinta batida {não suficiente}  
+  Sexta batida {não suficiente}  
+  Sétima batida {não suficiente}  
+  Oitava batida {suficiente}  
+
+Parar de bater no prego
+
+}
+
+```
+
+Perceba que, nesse caso, não sabemos previamente quantas batidas serão necessárias. Sabemos apenas que devemos continuar até que a condição seja satisfeita.
+
+Vamos traduzir essa lógica para o R:
+```{r}
+x <- 1
+
+while(x < 10){
+  print(x)
+  x <- x + 1
+}
+```
+
+A leitura é direta: Enquanto `x` for menor que `10`, execute o bloco de código.
+
+**Porém, aqui vai um ponto crítico: se você esquecer de atualizar a condição, o *loop* nunca termina. Note:**
+```{r eval = F}
+x <- 1
+
+while(x < 10){
+  print(x)
+}
+
+```
+
+**Se você comandou a rotina anterior, clique na "plaquinha de pare", localizada no lado superior direito do Console!**
+
+
+Na prática, em R, o uso de `while` é bem mais raro do que parece. E mais: perceba que o exemplo anterior poderia ser resolvido sem qualquer tipo de loop:
+
+```{r}
+1:9
+```
+
+Se você sabe quantas vezes quer repetir, use `for`. Se não sabe, use `while`.  
+
+Porém, no R, sempre se pergunte antes: precisa repetir mesmo?
+
+Vamos praticar?
+
+---
+
+**Exercício 05**
+
+Considere:
+```{r}
+x <- 1
+soma <- 0
+```
+
+a) Usando `while`:
+
+Some os valores de `x` até que a soma ultrapasse `50`.
+
+Ao final, mostre:
+
+- o valor final da soma;
+- quantas iterações foram necessárias.
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `while`. Dica: função `cumsum()`.
+
+<br>
+
+**Exercício 06**
+
+Considere:
+```{r}
+valor <- 1
+```
+
+a) Usando `while`:
+
+Multiplique o valor por 2 repetidamente até que ele ultrapasse 1000.
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `while`. 
+
+<br>
+
+**Exercício 07**
+
+Considere:
+```{r}
+x <- c(3, 7, 2, 15, 9, 20)
+```
+
+a) Usando `while`:
+
+Percorra o vetor até encontrar o primeiro valor maior que 10.
+
+Mostre:
+
+- o valor encontrado;
+- a posição.
+
+b) Vetorizando:
+
+Resolva o mesmo problema anterior sem utilizar `while`. Dica: função `which()`.
+
+---
+
+Pessoal, o `while` existe para quando você não sabe quando parar. Porém, sempre que souber, evite repetir.
+
+<br>
+
+## A função iterativa `repeat`
+
+Diferentemente do `for` e do `while`, **a estrutura `repeat` não depende de uma condição para começar ou continuar a execução.** Ela simplesmente executa o bloco de código indefinidamente!
+
+Por isso, para interromper um `repeat`, precisamos usar explicitamente o comando `break`.
+
+Dito isso, se o `while` significa “repita enquanto uma condição for verdadeira”, o `repeat` significa “repita até que eu mande parar”. Entenderam?
+
+Imagine que você está tentando adivinhar a senha de um cofre.
+
+Você não sabe quantas tentativas serão necessárias. Você só sabe que deve continuar tentando até acertar. Observe o seguinte pseudo-algoritmo:
+
+```{r eval = F}
+
+Tentar abrir o cofre:
+
+Repetir {
+
+| Digitar uma senha
+| Verificar se a senha está correta
+
+Se estiver correta: Parar
+
+}
+```
+
+Perceba que aqui não existe uma condição de entrada como no `while`. Portanto, a repetição acontece continuamente, até que uma condição interna determine a parada.
+
+Vamos simular esse comportamento de forma simples.
+
+Começaremos proponto um objeto `x` cujo valor será `1`. Aí, a cada iteração, vamos adicionar uma unidade ao objeto `x`. Porém, precisamos usar o comando `break` para estabelecer uma parada. No nosso caso, quando a soma atingir um valor superior a 5, comandaremos a parada:
+```{r}
+x <- 1
+
+repeat {
+  print(x)
+  x <- x + 1
+  
+  if(x > 5){
+    break
+  }
+}
+```
+
+Vocês devem ter notado que, assim como no `while`, aqui também existe um risco claro: Se você esquecer do `break`, o *loop* nunca termina! Note:
+```{r eval = F}
+x <- 1
+
+repeat {
+  print(x)
+  x <- x + 1
+}
+```
+
+Sendo sincero com vocês, na prática, o `repeat` é menos utilizado do que `for` e `while`.
+
+Ele costuma aparecer em situações mais específicas, quando a lógica de parada depende de condições internas ao processo e não é conveniente expressá-la diretamente na estrutura do *loop*.
+
+Vamos praticar?
+
+---
+
+**Exercício 08**
+
+Considere:
+```{r}
+x <- 1
+```
+
+a) Usando `repeat`:
+
+Imprima os valores de `x` até que ele ultrapasse `10`.
+
+
+b) Vetorizando:
+
+Resolva o mesmo problema sem utilizar `repeat`.
+
+<br>
+
+**Exercício 09**
+
+Considere:
+```{r}
+x <- 1
+soma <- 0
+```
+
+a) Usando `repeat`:
+
+Some os valores de `x` até que a soma ultrapasse `30`.
+
+Ao final, mostre o valor final da soma.
+
+
+b) Vetorizando:
+
+Resolva o mesmo problema sem utilizar `repeat`. 
+
+<br>
+
+**Exercício 10**
+
+Considere o seguinte processo:
+
+- Comece com total = 0;
+- A cada passo, some um número aleatório entre 1 e 5;
+- Pare quando o total ultrapassar 50.
+
+a) Usando `repeat`:
+
+Implemente essa lógica.
+
+
+b) Vetorizando:
+
+Resolva o mesmo problema sem utilizar `repeat`, caso seja possível.
+
+---
+
+Ao longo desta aula, vimos três formas de repetir instruções em R: `for`, `while` e `repeat`.
+
+Cada uma delas atende a um tipo específico de problema:
+
+- O `for` quando sabemos quantas vezes queremos repetir;
+- O `while` quando dependemos de uma condição;
+- O `repeat` quando precisamos de controle total sobre a parada.  
+
+Porém, também vimos algo ainda mais importante: No R, muitas vezes, **o melhor caminho não é repetir**.
+
+A vetorização nos permite aplicar operações a conjuntos inteiros de dados de forma direta, mais simples e, em geral, mais eficiente, e isso nos leva a uma mudança de mentalidade.
+
+Você pode resolver muitos problemas com *loops*, mas isso não significa que você deve! Antes de escrever um `for`, um `while` ou um `repeat`, faça uma pausa e se pergunte:
+
+***Isso aqui realmente precisa ser iterado?***
+
+Se a resposta for “não”, você provavelmente encontrará uma solução mais elegante.
+
+Se a resposta for “sim”, agora você tem as ferramentas para resolver o problema com segurança.
+
+No fim das contas, meu objetivo nesse tutorial foi demonstrar que:
+
+- *Loops* ensinam como o computador pensa.  
+- Vetorização ensina como escrever melhor em R.
+
+Como tudo em programação, não se trata apenas de fazer funcionar. Se trata de fazer bem feito.

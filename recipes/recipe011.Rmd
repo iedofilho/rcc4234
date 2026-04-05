@@ -1,0 +1,430 @@
+---
+title: "~~Matrix~~ Maptrix"
+output: html_document
+date: "2026-04-01"
+---
+
+![](images/maptrix.png)
+
+# Introdução à Programação Funcional e ao Pacote `purrr` 
+
+Antes de introduzir ideias sobre programação funcional e conversar sobre o pacote `purrr` (que faz parte do `tidyverse`), é importante que a gente relembre, no contexto do R, o que são **vetores** e entenda o que são **listas.**
+
+Se você vem do Python, talvez tenha criado um atalho mental de que uma lista é equivalente ao que fazemos com a função `c()`. Até porque, no Python, lista é exatamente isso: um arranjo de elementos.
+
+No R, não. No R, isso que você faz com `c()` é um vetor, e uma lista é outra coisa.
+
+No R, uma lista é como se fosse um super objeto com capacidade para guardar múltiplas coisas carregadas pelo R, ou por ele geradas.
+
+Até o momento, trabalhamos com vetores. Lembram?
+
+```{r}
+x <- c(4, 5, 9, 0, 12)
+
+y <- c("Brasil", "Argentina", "Venezuela", "Uruguai")
+
+z <- c(TRUE, TRUE, FALSE, TRUE, FALSE)
+```
+
+Note que vetores são homogêneos, isto é, todos os elementos pertencem ao mesmo tipo (*integer*, *character*, *logical*, etc.). Além disso, vetores permitem operações vetorizadas. Por exemplo:
+```{r}
+mean(x)
+
+toupper(y)
+
+sum(!z)
+```
+
+Tudo isso funciona muito bem quando não precisamos de repetição. Porém, nem sempre a vida é assim.
+
+Às vezes, você vai precisar guardar coisas diferentes em um mesmo objeto. E é exatamente aqui que entram as listas:
+```{r}
+lista <- list(
+  4:9,
+  letters[1:3],
+  TRUE
+)
+
+lista
+```
+
+Perceberam?
+
+No *slot* 1, temos números:
+```{r}
+lista[[1]]
+```
+
+No *slot* 2, temos texto:
+```{r}
+lista[[2]]
+```
+
+No *slot* 3, temos valores lógicos:
+```{r}
+lista[[3]]
+```
+
+Noutras palavras, de fato, uma lista consegue armazenar diferentes tipos de objetos ao mesmo tempo.
+
+---
+
+**A partir daqui, começaremos a entrar num ponto crítico sobre as listas.**
+
+Se você quiser acessar um valor específico dentro de um *slot*, basta encadear `[[]]`. Por exemplo, para pegar o valor `5` dentro do primeiro elemento:
+```{r}
+lista[[1]][[2]]
+```
+
+Até aqui, tudo bem, certo?
+
+Porém, agora vem uma das coisas mais importantes dessa aula. Se você foi curioso(a), provavelmente tentou isso:
+```{r}
+lista[1]
+```
+
+**À primeira vista, esse resultado parece muito próximo da resposta do comando `lista[[1]]`, mas não é!** Esses dois comandos são completamente diferentes para o R!
+
+Quando você usa um par de colchetes `[]`, o R devolve uma sublista, da sua lista original:
+```{r}
+class(lista[1])
+```
+
+Quando você usa dois colchetes `[[ ]]`, o R devolve vetores:
+```{r}
+class(lista[[1]])
+
+class(lista[[2]])
+
+class(lista[[3]])
+```
+
+
+**Essa diferença não é detalhe!** Essa diferença define se você está trabalhando com a lista toda, ou somente com o que está no interior de suas sublistas (sim, há casos extremos de inúmeras sublistas de sublistas).
+
+Acredite: entender isso é fundamental para sobreviver ao `purrr`, porque, na prática, quando utilizamos o pacote `purrr`, o que estamos fazendo é aplicar funções sobre os elementos de uma lista.
+
+Vamos ver isso na prática.
+
+```{r}
+dados <- list(grupo_A = 1:5, 
+              grupo_B = 6:22, 
+              grupo_C = 23:50)
+
+dados
+```
+
+Aqui, temos três conjuntos de dados dentro de um único objeto chamado `dados`.
+
+Suponha que queremos calcular a mediana de cada desses conjuntos de dados. Uma solução direta seria:
+```{r}
+median(dados[[1]])
+
+median(dados[[2]])
+
+median(dados[[3]])
+```
+
+Funciona, certo? Porém, começa a ficar chato rápido. Aliás, se fossem 50, 100 ou 1000 conjuntos de dados, isso seria inviável.
+
+Daí, você poderia dizer que uma possível alternativa seria usar o `for`:
+```{r}
+for (i in 1:length(dados)) {
+  
+  print(median(dados[[i]]))
+  
+}
+```
+
+Sim, isso resolve o problema. Porém, é mais verboso, menos elegante e mais propenso a erro. **É exatamente aqui que entra o `purrr`.**
+
+```{r}
+library(tidyverse)
+
+map(dados, median)
+```
+
+A função `map()` aplica uma função a cada elemento de uma lista e retorna o resultado. Tentando simplificar a ideia, em vez de dizer como iterar (como no `for`), você passa a dizer apenas o que deve ser feito com cada elemento, declarando funções (como no caso, `median`), como se fossem objetos comuns (sem os parênteses). E essa é a essência da programação funcional!
+
+Como você deve ter notado, **a função `map()` percorre listas e retorna uma lista.** Porém, essa é só a porta de entrada! Existe toda uma família de funções `map`, que permite controlar o tipo de saída, e é isso que veremos agora.
+
+
+# A Família `map`, do pacote `purrr`
+
+Se você abrir o console e digitar `map`, o próprio R já começa a sugerir várias variações dessa função. Cada uma delas foi pensada para retornar um tipo específico de resultado.
+
+Naturalmente, não faz sentido tentar cobrir todas essas funções aqui. Nesta aula, vamos focar nas mais úteis e mais recorrentes, especialmente no contexto das Ciências Sociais. Porém, antes de avançarmos para essa família de funções, vale a pena dar um passo atrás e nos aprofundarmos um pouco mais na função `map()` que acabamos de conhecer.
+
+## Aprofundando nas Capacidades da Função `map()`
+
+Nosso primeiro exemplo usando a map() foi o seguinte:
+```{r}
+map(dados, median)
+```
+Portanto, o comando anterior significa algo como: para cada vetor dentro de dados, calcule a mediana.
+
+Até aqui, usamos uma função pronta. Porém, e quando precisamos de algo mais específico?
+
+Suponha que queremos calcular a mediana e, em seguida, somar 10 ao resultado. Nesse caso, precisamos construir nossa própria função. Para isso, retomamos os conhecimentos da *Recipe 8* e utilizamos `function()`:
+```{r}
+map(dados, function(x) {
+  
+  median(x) + 10
+  
+})
+```
+
+
+Agora, não estamos mais apenas aplicando uma função pronta! Estamos definindo o que deve ser feito com cada elemento!
+
+Podemos ir além, aliás! Em vez de retornar um único valor, podemos extrair várias informações de cada vetor:
+```{r}
+map(dados, function(x) {
+  
+  c(
+    media = mean(x),
+    desvio_padrao = sd(x),
+    variancia = var(x)
+  )
+  
+})
+```
+
+
+Nesse caso, para cada elemento da lista, estamos retornando um pequeno conjunto de estatísticas.
+
+Para entender melhor o que está acontecendo, pense da seguinte forma:
+
+1. A função `map()` pega cada elemento da lista e coloca dentro do argumento `x`;
+2. O bloco `function(x) { ... `} define o que deve ser feito com esse elemento.
+
+---
+
+*Rafa, eu não poderia utilizar a função map() em data frames?*
+
+Sim, pode, mas com uma interpretação importante: Um *data frame* no R é entendido pela `map()` como uma lista de colunas.
+
+Para você entender melhor, vamos usar o *dataset* `mtcars`, que possui algumas informações sobre carros de 1974 (para mais informações, comande `?mtcars`).
+
+```{r}
+df_carros <- mtcars
+```
+
+Nesse caso, o objeto `df_carros` é um `data frame`:
+```{r}
+class(df_carros)
+```
+
+Assim, ao utilizar a função map(), ela iterará as colunas desse *data frame*:
+```{r}
+map(df_carros, mean)
+```
+
+
+---
+
+
+Dessa maneira, você controla completamente o comportamento da operação. Porém, como já adiantado, **a função `map()` percorre listas e retorna uma lista.** E se quiséssemos garantir que a saída fosse somente um vetor numérico?
+
+## A Função `map_dbl()`
+
+A função `map_dbl()` é uma variação da função `map()`. **Assim como a função `map()`, a função `map_dbl()` percorre uma lista, mas, diferentemente, retorna um vetor numérico.**
+
+Portanto, utilizamos `map_dbl()` quando sabemos que o resultado da operação será composto apenas por valores numéricos.
+
+Veja:
+```{r}
+map_dbl(dados, mean)
+```
+
+Nesse caso, a função `map_dbl()` retorna, na mesma ordem dos *slots* da lista `dados`, um vetor com as médias de cada conjunto de  dados armazenado.
+
+Para reforçar:
+
+```{r}
+class(map(dados, mean)) # a saída é uma lista
+```
+
+```{r}
+class(map_dbl(dados, mean)) # a saída é um vetor
+```
+
+Porém, a escolha entre usar `map()`, `map_dbl()` ou qualquer outra função da família `map` deve levar em consideração o tipo de resultado que você espera obter.
+
+Por exemplo, o código abaixo, como já vimos, funciona com `map()`, mas **não** funciona com `map_dbl()`:
+```{r eval = F}
+map_dbl(dados, function(x) {
+  
+  c(
+    media = mean(x),
+    desvio_padrao = sd(x),
+    variancia = var(x)
+  )
+  
+})
+```
+
+
+Isso acontece porque **a função `map_dbl()` só funciona quando cada elemento da lista gera exatamente um único número como resposta.**
+
+Se a função retornar dois, três ou mais números, ela deixa de ser compatível com `map_dbl()` e passa a exigir o uso de `map()`.
+
+No exemplo acima, se quisermos utilizar `map_dbl()`, precisamos calcular cada estatística separadamente:
+```{r}
+map_dbl(dados, mean)
+
+map_dbl(dados, sd)
+
+map_dbl(dados, var)
+
+```
+
+E se a ideia fosse organizar os resultados num data frame:
+```{r}
+medias <- map_dbl(dados, mean)
+desvios <- map_dbl(dados, sd)
+variancias <- map_dbl(dados, var)
+
+data.frame(
+  grupo = names(dados),
+  media = medias,
+  desvio_padrao = desvios,
+  variancia = variancias
+)
+```
+
+
+## A Função `map_chr()`
+
+Até aqui, vimos que a função `map_dbl()` retorna um vetor numérico, mas e se quisermos trabalhar com texto?
+
+Para isso, utilizamos a função `map_chr()`. **Assim como as demais funções da família `map`, ela percorre uma lista, porém, seu resultado será um vetor de caracteres.**
+
+Vamos considerar o seguinte exemplo:
+```{r}
+dados_texto <- list(
+  america = c("Brasil", "Argentina", "Chile"),
+  europa = c("França", "Itália"),
+  asia = c("Japão", "China", "Coreia")
+)
+```
+
+
+Suponha que queremos pegar o primeiro elemento de cada vetor:
+```{r}
+map_chr(dados_texto, function(x) {
+  
+  x[1]
+  
+})
+```
+
+Também podemos transformar os textos:
+```{r}
+map_chr(dados_texto, function(x) {
+  
+  toupper(x[1])
+  
+})
+```
+
+A função map_chr() também exige que cada elemento gere exatamente um único valor, só que agora um texto.
+
+Se tentarmos retornar mais de um valor:
+```{r eval = F}
+map_chr(dados_texto, function(x) {
+  
+  substr(toupper(x), 1, 3)
+  
+})
+```
+
+Isso não funciona, pois cada elemento da lista possui vários valores. Logo, o correto aqui seria usar a função `map()`:
+```{r}
+map(dados_texto, function(x) {
+  
+  substr(toupper(x), 1, 3)
+  
+})
+```
+
+
+Até aqui, temos um padrão bastante claro.
+
+- `map()`: retorna uma lista; 
+- `map_dbl()`: retorna um vetor numérico; 
+- `map_chr()`: retorna um vetor de texto.
+
+Portanto, a lógica de funcionamento é sempre a mesma: **percorremos uma lista e aplicamos uma função a cada elemento. O que muda é apenas o tipo de saída.**
+
+Seguindo essa mesma ideia, podemos trabalhar também com resultados lógicos.
+
+## A Função `map_lgl()`
+
+**A função `map_lgl()` também percorre uma lista, porém retorna um vetor lógico, ou seja, composto por valores `TRUE` ou `FALSE`.**
+
+Vamos retomar o objeto `dados`. Suponha que queremos verificar se a média de cada vetor é maior que 10:
+```{r}
+map_lgl(dados, function(x) {
+  
+  mean(x) > 10
+  
+})
+```
+
+Nesse caso, para cada elemento da lista, a função retorna um valor lógico indicando se a condição foi satisfeita.
+
+Assim como nas demais funções da família `map`, a regra continua válida: cada elemento da lista deve gerar exatamente um único valor como saída. Nesse caso, um `TRUE` ou `FALSE`.
+
+
+A partir dessa ideia central, temos variações que controlam o tipo de saída:
+
+- `map()`: retorna uma lista; 
+- `map_dbl()`: retorna um vetor numérico; 
+- `map_chr()`: retorna um vetor de texto;
+- `map_lgl()`: retorna um vetor lógico.
+
+Lembrem-se que a estrutura do raciocínio é sempre a mesma. O que muda é apenas o formato do resultado.
+
+Se você entendeu isso, você já entendeu a essência do pacote `purrr`.
+
+
+
+-------------
+
+**Desafio 1**
+
+
+Vamos fazer de conta que os dados de nossa pesquisa vêm do dataset `mtcars`, que apresenta características de alguns carros do ano de 1974 (para mais informações, utilize `?mtcars`).
+
+Nesse exemplo, nossa base de dados está organizada como uma lista, armazenada no objeto `dados_pesquisa`, em que cada elemento contém um subconjunto dos dados de acordo com a quantidade de cilindros (4, 6 ou 8):
+
+```{r}
+df <- mtcars
+
+dados_pesquisa <- split(df, df$cyl)
+
+dados_pesquisa
+```
+
+Insisto. Suponha que a base de dados de nossa pesquisa seja o que está no objeto `dados_pesquisa`.
+
+Vamos supor que haja o interesse estudar as correlações entre as variáveis consumo (`mpg`) e peso do veículo (`wt`), para cada conjunto de dados. No R, a função que calcula correlações é `cor()`.
+
+
+Seu trabalho será utilizar uma função da família `map` para atingir esse objetivo.
+
+
+**Desafio 2**
+
+Considere novamente o objeto `dados_pesquisa`, em que cada elemento da lista contém um subconjunto do dataset `mtcars`, separado pela quantidade de cilindros.
+
+Suponha que você deseja identificar quais grupos de veículos apresentam, em média, maior consumo de combustível (ou seja, menor eficiência).
+
+Seu objetivo é verificar, para cada conjunto de dados, se o consumo médio (`mpg`) é menor que 20.
+
+Utilize uma função da família `map` para obter esse resultado.
+
+---
+
+

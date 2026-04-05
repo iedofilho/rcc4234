@@ -1,0 +1,433 @@
+---
+title: "The ~~Imitation~~ Function Game"
+output: html_document
+date: "2026-03-25"
+---
+
+![](images/theimitationgame.png)
+
+*Até agora vocês estavam usando o sistema.*
+*Hoje vocês começam a reescrever o código.*
+
+<br>
+
+Tudo bem, pessoal?
+
+Na aula em que apresentei a vocês as capacidades do `tidyverse` para manipulação de bases de dados, eu comentei que aquele era um momento crítico; possivelmente, a aula mais importante pensando nos objetivos de um aluno de *stricto sensu* em Ciências Sociais.
+
+**Porém,se a sua ideia vai além disso, isto é, se você quer deixar de ser apenas um manipulador de dados e passar a ser, de fato, um programador em R, então preciso ser direto: essa aula é igualmente crítica.** 
+
+Hoje, nós vamos dar um passo importante. Vamos sair do uso de funções prontas e começar a entender como construir as nossas próprias soluções. Para isso, veremos como criar funções e como utilizar processos iterativos. Aqui, a iteração (não, não é interação) possui sentido de repetição, de execução sistemática, redundâncias finitas (*loops*). Mais do que isso, vamos entender como essas estruturas podem ser substituídas, sempre que possível, por abordagens vetorizadas, e já vamos discutir o que isso significa na prática.
+
+A mensagem central aqui é simples: **escrever melhor código não é sobre escrever mais código. É sobre escrever código mais organizado, mais eficiente e, principalmente, mais inteligente.**
+
+Pela primeira vez no curso, vou pedir que vocês acompanhem a aula em paralelo com leituras específicas. Leiam os capítulos [19 - Functions](http://r4ds.had.co.nz/functions.html), [20 - Iteration](http://r4ds.had.co.nz/iteration.html), e o trecho do capítulo [18 - Vectors](http://r4ds.had.co.nz/vectors.html#lists) que trata de listas. **Essas leituras não são complementares; elas fazem parte da aula.**
+
+---
+
+**Se você vem do Python, vale um alerta importante: listas em R não têm o mesmo papel que listas em Python.** Lembrem-se da analogia que discutimos: objetos, no R, são como palavras em uma língua, ou seja, são as unidades básicas com as quais construímos tudo. Ao mesmo tempo, os objetos são como caixas, capazes de armazenar qualquer coisa.
+
+**As listas, nesse contexto, são caixas especiais:** caixas que guardam outras caixas. Uma lista em R pode armazenar, simultaneamente, gráficos, modelos estatísticos, bases de dados, textos ou qualquer outro objeto. Tudo organizado dentro de uma única estrutura.
+
+E é exatamente esse tipo de flexibilidade que começa a abrir as portas para uma programação mais avançada, e muito mais poderosa!
+
+---
+
+Vamos lá?
+
+<br>
+
+# Funções no R
+
+Acho que você já percebeu o objetivo deste tópico: aprenderemos a criar nossos próprios verbos, isto é, nossos próprios algoritmos.
+
+É verdade que o R, atualmente, conta com quase 24 mil pacotes, recheados de funções para os mais diversos problemas. Ainda assim, isso está longe de ser suficiente para cobrir todas as necessidades possíveis em todas as áreas do conhecimento. Aliás, arrisco dizer que, dada a velocidade do avanço científico e a criatividade humana, nunca existirá um conjunto de pacotes capaz de resolver tudo o que precisamos. **É exatamente por isso que saber programar, de fato, faz diferença.**
+
+
+Então, sem mais rodeios, vamos construir a nossa primeira função. **Tenham em mente o seguinte: o desenho de uma função não é apenas código; é, acima de tudo, abstração.** Propor um algoritmo significa antecipar possibilidades, tal como um enxadrista que tenta prever diferentes cenários antes que eles aconteçam.
+
+Para criar uma função, utilizamos `function()` em conjunto com os operadores `{}` (se diz *code block* ou *compound expression*). Vamos começar com algo simples: um verbo que sempre retorna o dobro de um valor informado.
+```{r}
+dobrar <- function(x){
+  x * 2
+}
+```
+
+Perceba que `dobrar()` agora passa a existir no *Global Environment* do RStudio. **Mais do que um objeto qualquer, `dobrar()` se tornou uma função, um verbo, um algoritmo.**
+
+Vamos destrinchar o que aconteceu nesse comando.
+
+Primeiro, definimos o nome do objeto: `dobrar`. Em seguida, indicamos ao R que esse objeto será uma função, utilizando `function()`.
+
+**É nesse momento que a abstração começa.** Dentro de `function()`, declaramos um argumento; no caso, `x`. Esse nome é apenas um *placeholder*: poderíamos usar qualquer outro. Aqui, `x` representa o valor que será fornecido à função que estamos criando.
+
+Depois disso, utilizamos `{}` para definir o comportamento dessa função, ou seja, o que ela fará quando for executada. Dentro desse bloco, estabelecemos que `x` será multiplicado por `2`.
+
+Em outras palavras: qualquer valor que for passado para `dobrar()` será automaticamente transformado no seu dobro. Note:
+```{r}
+dobrar(x = 150)
+```
+
+Pode glorificar de pé, porque você acabou de criar o seu primeiro algoritmo!
+
+Vamos avançar com mais um exemplo, agora com um pequeno aumento de complexidade, para consolidar o que aprendemos.
+
+Imagine a necessidade de criarmos uma função que calcule a Liquidez Corrente de uma empresa. A Liquidez Corrente ($LC$) é dada pela seguinte fórmula:
+
+$$LC = \frac{AC}{PC}$$
+em que, $AC$ representa o Ativo Circulante; e $PC$ representa o Passivo Circulante.
+
+Antes de continuar, faça um exercício mental: suponha que já exista um algoritmo chamado `lc()` no seu *Global Environment*. Quais seriam os argumentos necessários para que ele funcione? Em outras palavras, quais informações precisamos fornecer para calcular a $LC$?
+
+Se você prestou atenção na fórmula, a resposta é direta: precisamos de um valor de $AC$ e outro de $PC$. Logo, esses dois elementos devem ser os argumentos da função que vamos construir:
+```{r}
+lc <- function(ac, pc){
+  ac / pc
+}
+```
+`
+Agora, se informarmos ao nosso verbo `lc() um Ativo Circulante de R\$ 7.000 e um Passivo Circulante de R\$ 5.000, o resultado esperado será `1.4`:
+```{r}
+lc(ac = 7000, 
+   pc = 5000)
+```
+
+Dito isso, acostumem-se, desde já, com a utilização da função `return()`. À medida que nossos algoritmos forem ficando mais complexos (e eles ficarão) `return()` permitirá indicar, de forma explícita, qual resultado deve ser devolvido pela função. Observe:
+```{r}
+lc <- function(ac, pc){
+  
+  liquidez <- ac / pc
+  
+  return(liquidez)
+}
+```
+
+Dentro dos `{}`, criamos um objeto chamado `liquidez`, que armazena o resultado de `ac / pc`. **Esse objeto é local à função, ou seja, existe apenas durante a execução do algoritmo e não aparece no *Global Environment*.**
+
+Em seguida, utilizamos `return()` para indicar que o valor armazenado em `liquidez` deve ser devolvido ao usuário.
+
+Agora, aqui entra um ponto importante, e vale ser direto com vocês: **No R, o uso de `return(`) não é obrigatório. Por padrão, uma função sempre retorna o valor da última expressão avaliada.**
+
+Noutras palavras, os dois códigos a seguir são equivalentes:
+
+
+```{r}
+lc <- function(ac, pc){
+  ac / pc
+}
+```
+
+<br>
+
+```{r}
+lc <- function(ac, pc){
+  liquidez <- ac / pc
+  return(liquidez)
+}
+```
+
+
+**Então por que usar `return()`?**
+
+Porque, à medida que o algoritmo cresce em complexidade, passamos a ter múltiplas etapas intermediárias, vários objetos locais e, possivelmente, diferentes caminhos de execução. Nesses casos, `return()` ajuda a deixar explícito qual é o resultado final da função, evitando ambiguidade e melhorando a legibilidade do código.
+
+Eu sei que em funções simples, `return()` pode parecer um preciosismo. **Porém, em funções mais complexas, ele passa a ser uma ferramenta de organização e clareza.**
+
+**Lembre-se do seguinte: Função boa não é a que funciona. É a que alguém entende, inclusive você mesmo, daqui a seis meses.**
+
+---
+
+Vamos praticar?
+
+
+**Exercício 01**
+
+A fórmula para coverter graus *Celsius* para *Fahrenheit* é a seguinte:
+
+$$ ^\circ F = \left( ^\circ C \times \frac{9}{5} \right) + 32$$
+
+Crie um algoritmo que automatize essa conversão.
+
+<br>
+
+**Exercício 02**
+
+E se quiséssemos o oposto? Se quiséssemos um algoritmo que convertesse a temperatura de *Fahrenheit* para *Celsius*? A fórmula é a seguinte:
+
+$$ ^ \circ C = 5 \times \left( \frac{^\circ F - 32}{9}\right)$$
+
+---
+
+**ATENÇÃO:** Se a sua ficha ainda não começou a cair, por favor, me deixe saber! **A partir daqui, não avance sem antes tirar TODAS as suas dúvidas!**
+
+Insisto. Avançar com dúvidas, nessa aula, vai te levar para o caminho da frustração. Pare um segundo, reflita sobre o que você leu, sobre o que você fez e como fez. Tenha a certeza de que entendeu tudo.
+
+---
+
+Vamos criar um outro algoritmo que lide com valores textuais. Porém, antes disso, precisamos entender brevemente a função `sample()`.
+
+A função `sample()` gera amostras aleatórias, com ou sem reposição. Ela possui quatro argumentos principais: `x`, `size`, `replace` e `prob`.
+
+- `x`: vetor de elementos que serão considerados na amostragem;
+- `size`: tamanho da amostra a ser gerada;
+- `replace`: indica se há reposição (por padrão, `FALSE`);
+- `prob`: vetor de probabilidades associado aos elementos de `x` (argumento opcional).
+
+Vamos considerar o seguinte vetor com 20 mil observações:
+
+```{r}
+observacoes <- 1:20000
+```
+
+Agora, vamos sortear 50 valores aleatórios, sem reposição e com probabilidades iguais:
+
+```{r}
+sample(x = observacoes,
+       size = 50,
+       replace = FALSE)
+```
+
+Agora que entendemos o funcionamento de `sample()`, vamos avançar.
+
+**Imagine que queremos criar um algoritmo que gere senhas aleatórias com a seguinte estrutura:**
+
+- 2 letras maiúsculas;
+- 7 letras minúsculas;
+- 3 números.
+
+**Nessa ordem.**
+
+Primeiro, precisamos saber de onde vêm esses elementos.
+
+O R já possui objetos internos úteis:
+
+```{r}
+LETTERS   # letras maiúsculas
+letters   # letras minúsculas
+0:9       # números de 0 a 9
+```
+
+Com isso, podemos propor o seguinte algoritmo:
+
+```{r}
+senha <- function(letras_maiusculas,
+                  letras_minusculas,
+                  numeros){
+  
+  letr_maiu <- sample(x = LETTERS,
+                      size = letras_maiusculas,
+                      replace = TRUE)
+  
+  letr_minu <- sample(x = letters,
+                      size = letras_minusculas,
+                      replace = TRUE)
+  
+  num <- sample(x = 0:9,
+                size = numeros,
+                replace = TRUE)
+  
+  return(
+    paste0(letr_maiu, 
+           letr_minu, 
+           num)
+  )
+}
+```
+
+```{r}
+senha(letras_maiusculas = 2,
+      letras_minusculas = 7,
+      numeros = 3)
+```
+
+**Algo deu muito errado, não é?**
+
+---
+
+**Vamos entender o problema!**
+
+O raciocínio até aqui está correto! O problema não está na lógica da função, mas em como o R lida com vetores de tamanhos diferentes.
+
+Para debugar a situação, vamos abandonar o verbo `function()` por um segundo, e tentar entender o que está ocorrendo "no chão de fábrica":
+
+```{r}
+
+# Criando, no Global Environment, um objeto que salva duas letras maiúsculas aleatórias
+
+letr_maiu <- sample(x = LETTERS,
+                      size = 2,
+                      replace = TRUE)
+
+letr_maiu
+
+# Criando, no Global Environment, um objeto que salva sete letras minúsculas aleatórias
+letr_minu <- sample(x = letters,
+                      size = 7,
+                      replace = TRUE)
+
+letr_minu
+
+# Criando, no Global Environment, um objeto que salva três dígitos aleatórios
+num <- sample(x = 0:9,
+                size = 3,
+                replace = TRUE)
+
+num
+```
+
+A função `paste0()` deveria juntar tudo, sem espaços. Note:
+```{r}
+paste0("oi", ",", "tudo", "bem", "?")
+
+# Diferença para a função paste() que gera espaços entre os elementos:
+paste("oi", ",", "tudo", "bem", "?")
+
+# Nada a ver com a aula, mas podemos aninhar paste() e paste0():
+paste(
+  paste0("oi", ","),
+  "tudo",
+  paste0("bem", "?")
+)
+
+```
+Assim:
+```{r}
+paste0(letr_maiu,
+       letr_minu,
+       num)
+```
+
+Quando usamos `paste0()`, o R não concatena tudo em uma única *string*. Em vez disso, ele aplica o chamado *recycling rule* (regra de reciclagem): O R tenta alinhar os vetores repetindo os elementos menores até atingir o tamanho do maior.
+
+Isso gera combinações inesperadas, não uma senha única.
+
+O que realmente queremos é colapsar cada vetor em uma única *string* antes de juntá-los. Para isso, vale a pena usar a função `glue_collapse()`, do pacote `glue`. Note:
+
+```{r}
+library(glue)
+
+# Criando, no Global Environment, um objeto que salva duas letras maiúsculas aleatórias colapsadas
+letr_maiu <- glue_collapse(
+  sample(LETTERS, 2, replace = TRUE)
+)
+
+letr_maiu
+
+# Criando, no Global Environment, um objeto que salva sete letras minúsculas aleatórias colapsadas
+letr_minu <- glue_collapse(
+  sample(letters, 7, replace = TRUE)
+)
+
+letr_minu
+
+# Criando, no Global Environment, um objeto que salva três dígitos aleatórias colapsados
+num <- glue_collapse(
+  sample(0:9, 3, replace = TRUE)
+)
+
+num
+
+# Usando a função paste0():
+paste0(letr_maiu, letr_minu, num)
+```
+Resolvido, certo?
+
+Agora, vamos reescrever o algoritmo:
+```{r}
+senha <- function(letras_maiusculas,
+                  letras_minusculas,
+                  numeros){
+  
+  letr_maiu <- glue_collapse(
+    sample(LETTERS, letras_maiusculas, replace = TRUE)
+  )
+  
+  letr_minu <- glue_collapse(
+    sample(letters, letras_minusculas, replace = TRUE)
+  )
+  
+  num <- glue_collapse(
+    sample(0:9, numeros, replace = TRUE)
+  )
+  
+  return(paste0(letr_maiu, letr_minu, num))
+}
+```
+
+Vamos testar nossa função `senha()`?
+```{r}
+senha(letras_maiusculas = 2,
+      letras_minusculas = 7,
+      numeros = 3)
+```
+
+---
+
+Esse exemplo ensina três coisas importantes ao mesmo tempo:
+
+- Como gerar dados aleatórios;
+- Como construir funções mais elaboradas;
+- Como o R trabalha com vetores... e por que isso, às vezes, dá errado.
+
+**Programar não é só fazer funcionar. É entender por que não funcionou, e corrigir com consciência do que você está fazendo.**
+
+**E eu sei, isso pode parecer exigente.**
+
+Porém, pense assim: ninguém nasceu sabendo andar de bicicleta, jogar bola, nadar, analisar demonstrações financeiras, avaliar empresas ou tomar decisões clínicas. Tudo isso exige tempo, prática e, principalmente, paciência com o próprio processo de aprendizado.
+
+Se em algum momento parecer confuso, não tem problema. Respire, volte um passo, revise com calma e tente novamente.
+
+É exatamente assim que se aprende a programar.
+
+---
+
+Vou deixar alguns exercícios para vocês praticarem antes de avançar para a próxima *recipe*:
+
+<br>
+
+**Exercício 03**
+
+Crie uma função chamada `triplo()` que receba um número e retorne seu triplo.
+
+<br>
+
+**Exercício 04**
+
+Crie uma função chamada `area_retangulo()` que receba base e altura e retorne a área de um retângulo.
+
+<br>
+
+**Exercício 05**
+
+Crie uma função chamada `imc()` que receba peso (kg) e altura (m) e retorne o IMC.
+
+<br>
+
+**Exercício 06**
+
+Crie uma função chamada `juros_simples()` que receba capital, taxa e tempo, e retorne o montante final.
+
+<br>
+
+**Exercício 07**
+
+Crie uma função chamada `delta()` que receba `a`, `b` e `c`, e retorne o valor do discriminante da equação do segundo grau.
+
+<br>
+
+**Exercício 08**
+
+Crie uma função chamada `nome_completo()` que receba nome e sobrenome, e retorne o nome completo.
+
+<br>
+
+**Exercício 09**
+
+Crie uma função chamada `email_simples()` que receba um nome retorne um e-mail no formato: nome\@empresa.com
+
+
+---
+
+
+
+
