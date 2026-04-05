@@ -1,0 +1,152 @@
+---
+title: "The ~~Last~~ Dataset of Us"
+output: html_document
+date: "2026-04-05"
+---
+
+# Desafio 02 (Segunda Tarefa Avaliativa)
+
+![](images/tlou.png)
+
+## Contexto 
+
+O Departamento de Informática do Sistema Único de Saúde (DATASUS) é o órgão responsável pela coleta, processamento e disponibilização de dados oficiais de saúde pública no Brasil.
+
+Por meio do [DATASUS](https://datasus.saude.gov.br/), é possível acessar uma ampla variedade de bases de dados relacionadas ao funcionamento do Sistema Único de Saúde (SUS), incluindo informações sobre mortalidade, internações hospitalares, nascimentos, cobertura de serviços, entre outros indicadores.
+
+Esses dados são utilizados por pesquisadores, gestores públicos e profissionais da saúde para:
+
+- Monitorar condições de saúde da população;
+- Avaliar políticas públicas;
+- Identificar padrões epidemiológicos;
+- Apoiar a tomada de decisão baseada em evidências.
+
+Um dos principais diferenciais do DATASUS é o acesso aberto e gratuito às informações, o que permite que análises sejam realizadas de forma transparente e reprodutível.
+
+No entanto, como qualquer base de dados administrativa, o uso do DATASUS exige cuidados metodológicos, especialmente no que diz respeito à qualidade do preenchimento, possíveis subnotificações e diferenças regionais na coleta de dados.
+
+Posto isso, o [TabNet](https://datasus.saude.gov.br/informacoes-de-saude-tabnet/) é a principal interface de acesso aos dados do DATASUS.
+
+Trata-se de uma ferramenta online que permite consultar, filtrar e tabular dados de saúde pública diretamente no navegador, sem a necessidade de *download* prévio das bases completas.
+
+Por meio do TabNet, o usuário pode:
+
+- Selecionar diferentes bases de dados (como mortalidade, internações, nascimentos);
+- Definir variáveis de linha, coluna e conteúdo;
+- Aplicar filtros por período, região, faixa etária, sexo, entre outros;
+- Gerar tabelas agregadas prontas para análise.
+
+Na prática, o TabNet funciona como um sistema de consultas estruturadas, no qual o usuário constrói tabelas dinâmicas a partir dos dados brutos disponíveis no DATASUS.
+
+## O Desafio
+
+Nesta atividade, vocês irão trabalhar com dados reais de saúde pública disponíveis no DATASUS, por meio da interface TabNet, com o objetivo de construir uma base analítica e realizar uma análise exploratória sobre doenças evitáveis por vacinação no Brasil.
+
+## Objetivo da Atividade
+
+Avaliar a capacidade do estudante de:
+
+- Coletar dados públicos em bases governamentais;
+- Estruturar bases de dados para análise;
+- Trabalhar com múltiplos níveis de agregação;
+- Produzir análises exploratórias com visualização gráfica;
+- Relacionar indicadores de saúde com variáveis de contexto.
+
+## Definição do Escopo
+
+Para esta atividade, consideraremos exclusivamente as seguintes doenças imunopreveníveis:
+
+- Sarampo;
+- Coqueluche;
+- Tétano;
+- Difteria;
+- Poliomielite;
+- Hepatite B;
+- Rubéola;
+- Caxumba;
+- Influenza.
+
+## Coleta de Dados
+
+Cada discente deverá:
+
+1. Selecionar um recorte geográfico, obedecendo a um dos critérios:
+
+    1.1. No mínimo 3 estados de uma mesma região, ou
+
+    1.2. No mínimo 3 municípios de uma mesma macrorregião, ou
+
+    1.3. No mínimo 3 regiões do país
+  
+2. Definir um período temporal consistente, garantindo:
+
+    2.1 Mesma janela de tempo para todos os estratos analisados;
+    
+    2.2 Dados comparáveis entre unidades geográficas.
+    
+
+## Estruturação da Base
+
+A base de dados construída deverá conter, obrigatoriamente:
+
+- Identificação geográfica (estado, município ou região);
+
+- Período (ano ou outro recorte temporal coerente);
+
+- Indicadores de ocorrência (óbitos, apenas);
+
+- Estratificação por:
+
+    - Sexo;
+    
+    - Cor/etnia
+
+## Análise Exploratória
+
+A análise deverá incluir:
+
+- Visualizações gráficas, tais como:
+
+    - Séries temporais;
+    
+    - Comparações entre regiões;
+    
+    - Distribuições por sexo e cor/etnia;
+    
+- Integração com dados de gasto em saúde, de forma a explorar possíveis relações entre:
+
+    - Nível de investimento em saúde;
+    
+    - Ocorrência das doenças analisadas.
+    
+
+## Entregáveis
+
+A entrega final deverá conter:
+
+**1. Arquivo compactado (.zip)**
+
+Incluindo:
+
+- Bases de dados utilizadas (tratadas e finais);
+
+- Scripts em R utilizados no processo, devidamente comentados;
+
+- Código executável sem erros.
+
+**2) Relatório em PDF**
+
+O relatório deverá conter:
+
+- Descrição do processo de coleta de dados;
+
+- Justificativa das escolhas metodológicas;
+
+- Explicação das transformações realizadas;
+
+- Apresentação dos resultados (com gráficos, necessariamente);
+
+- Breve discussão dos achados.
+
+
+Os dados de gasto podem ser obtidos em bases públicas complementares (como o próprio DATASUS ou outros portais governamentais).
