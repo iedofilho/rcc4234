@@ -2,10 +2,10 @@
 title: "The ~~Social~~ Render Network"
 format:
   html:
-    toc: true
+    toc: false
     toc-title: "Sumário"
 editor: visual
-toc: true
+toc: false
 ---
 
 ![](images/tsn.png)
