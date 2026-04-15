@@ -1,6 +1,11 @@
 ---
 title: "The ~~Butterfly~~ Commit Effect"
-format: html
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    toc: true
+    toc-title: "Sumário"
 editor: visual
 ---
 

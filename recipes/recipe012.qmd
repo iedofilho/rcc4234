@@ -4,10 +4,10 @@ format:
   html:
     embed-resources: true
     self-contained: true
-    toc: false
+    toc: true
     toc-title: "Sumário"
 editor: visual
-toc: false
+toc: true
 ---
 
 ![](images/tsn.png)

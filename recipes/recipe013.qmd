@@ -1,6 +1,11 @@
 ---
 title: "How I Met Your ~~Mother~~ Data"
-format: html
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    toc: true
+    toc-title: "Sumário"
 editor: visual
 ---
 
