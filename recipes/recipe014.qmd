@@ -1,0 +1,109 @@
+---
+title: "The ~~Butterfly~~ Commit Effect"
+format: html
+editor: visual
+---
+
+![](images/tbe.png)
+
+# Aula rápida: Git, GitHub e RStudio
+
+**Git** é um sistema de controle de versão!
+
+Sabe este preciso momento da vida de vocês em que estão escrevendo suas dissertações e teses? Eu apostaria um bom dinheiro que existe, em algum lugar do computador de vocês, uma pasta com arquivos mais ou menos assim:
+
+- Tese_versão_5.docx;
+- Tese_versão_6.docx;
+- ...
+- Tese_versão_57_agora_vai.docx;
+- ...
+- Tese versão_88_se_não_for_dessa_vez_eu_desisto.docx;
+- ...
+- Tese versão_514_quantos_anos_de_cadeia_eu_pego_se_eu_matar_meu_orientador.docx
+
+O Git resolve exatamente isso! Ele guarda o histórico do seu código e permite voltar no tempo, comparar versões e trabalhar sem quebrar tudo.
+
+No Git, cada mudança importante é um **commit**; e commit é um “checkpoint” do seu projeto! Só que com uma diferença fundamental: em vez de você criar 500 arquivos com nomes caóticos, o Git mantém tudo organizado, rastreável e recuperável em um único lugar.
+
+Dito isso, vamos falar um pouco sobre o **GitHub**.
+
+# O que é GitHub
+
+O [GitHub](https://www.github.com) é basicamente um “Google Drive + Git” para código.
+
+Ele serve para armazenar repositórios numa nuvem, compartilhar código e colaborar com outras pessoas. Aliás, todas as aulas dessa nossa disciplina estão lá, exatamente, por esses motivos!
+
+Quando usamos o GitHub, alguns conceitos precisam estar muito claros:
+
+- **Repositório (repo)** é pasta do projeto
+- **Clone** significa baixar o repo para sua máquina
+- **Fork** é o mesmo que copiar repo de outra pessoa para sua conta
+- **Commit** significa salvar mudanças com mensagem
+- **Push** serve para enviar para o GitHub
+- **Pull** é usado para trazer atualizações
+
+# Setup inicial
+
+1. Criar uma conta gratuita: https://github.com/
+
+2. Instalar o Git: https://git-scm.com/download/win
+
+Depois disso, **abra o terminal** (aba do Console, mudar para Terminal) e rode:
+
+```{bash}
+git --version
+```
+
+Se aparecer alguma versão, está funcionando.
+
+## Primeira Tarefa: Fork e Clone
+
+1. Vá para sua conta no github e faça o login. Comece "forkando" um repositório de apoio: https://github.com/fsrafael25/aula_git_4234
+
+2. Clique em **Fork**. Isso criará uma cópia do nosso repositório na sua conta.
+
+3. **Clone:** No seu repo forkado, clique em Code >> HTTPS >> copie o link.
+
+4. No RStudio, clique em File >> New Project >> Version Control >> Git.
+
+5. Cole o link e escolha a pasta.
+
+6. Crie o arquivo `analise.R`, da seguinte forma:
+
+```{r eval = F}
+load("south_america.RData")
+
+modelo <- lm(gdp ~ life_exp + pop + mercosul, data = south_america)
+
+summary(modelo)
+
+plot(density(south_america$gdp))
+```
+7. Produzir um arquivo `.qmd` de sua autoria, comentando (muito brevemente) a regressão e o gráfico. Salvar como `analise.qmd`
+
+8. Add, commit e push usando a interface do RStudio.
+```{r eval = F}
+git init
+
+git add .
+
+git commit -m "Primeiro commit"
+
+git remote add origin https://github.com/seu-usuario/seu-repo.git
+
+git branch -M main
+
+git push -u origin main
+```
+
+## Segunda Tarefa:  Criando um novo projeto
+
+1. Criar um repositório novo diretamente no github.
+
+2. Clonar.
+
+3. Editar o README.
+
+4. Adicionar 2 novos arquivos de sua escolha.
+
+5. Add, commit e push.

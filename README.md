@@ -120,7 +120,7 @@ Leituras recomendadas: Hands-On Programming with R (capítulos de 6 e 7); ou R f
 <br>
 
 * **Aula 6: 16/04/2026 - Integração, Reprodutibilidade e Dados Externos**
-  - `RMarkdown`;
+  - `Quarto`;
   - Versionamento com `git`;
   - Integração com bancos SQL;
   - Conexões e queries básicas;

@@ -1,0 +1,2778 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>How I Met Your Mother Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="recipe013_files/libs/clipboard/clipboard.min.js"></script>
+<script src="recipe013_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="recipe013_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="recipe013_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="recipe013_files/libs/quarto-html/popper.min.js"></script>
+<script src="recipe013_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="recipe013_files/libs/quarto-html/anchor.min.js"></script>
+<link href="recipe013_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="recipe013_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="recipe013_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="recipe013_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="recipe013_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">How I Met Your <del>Mother</del> Data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/himym.png" class="img-fluid"></p>
+<p>Bem-vindos(as)!</p>
+<p>Hoje a aula é sobre combinarmos o R com a linguagem SQL! Assim, poderemos trabalhar com bases de dados muuuuuuito grandes, combinando o poder de <em>analytics</em> do R!</p>
+<p>A sigla SQL vem de <em>Structured Query Language</em> e corresponde a uma linguagem utilizada para consultar, manipular e organizar dados armazenados em bancos de dados relacionais.</p>
+<p>Imagine uma instituição bancária. Esse tipo de organização lida diariamente com milhões de clientes, milhares de funcionários e um volume massivo de transações financeiras.</p>
+<p>Cada cliente possui características próprias, cada transação gera novos registros e cada setor da empresa produz informações específicas. Ao longo do tempo, essa quantidade de dados cresce de forma extremamente rápida.</p>
+<p>Diante disso, surge um problema: como organizar tudo isso de forma eficiente?</p>
+<p>Uma solução ingênua seria armazenar tudo em uma única tabela. Porém, isso dificultaria a organização dos dados, aumentaria redundâncias e tornaria a manutenção muito mais complexa.</p>
+<p>A alternativa mais eficiente é estruturar essas informações em múltiplas tabelas temáticas, como clientes, funcionários e transações, por exemplo.</p>
+<p>Essas tabelas não ficam isoladas. Elas se conectam entre si por meio de chaves:</p>
+<ul>
+<li><strong><em>Primary Key</em></strong> (chave primária): identifica unicamente cada registro em uma tabela</li>
+<li><strong><em>Foreign Key</em></strong> (chave estrangeira): permite conectar registros entre tabelas diferentes</li>
+</ul>
+<p>Esse modelo é conhecido como banco de dados relacional. Note:</p>
+<p><img src="images/bd.png" class="img-fluid"> A imagem acima representa a estrutura de um banco de dados relacional, composto por seis tabelas distintas, cada uma responsável por armazenar um tipo específico de informação.</p>
+<p>Cada tabela possui colunas (variáveis) que descrevem as características dos dados armazenados. Por exemplo, a tabela <strong>Dados Pessoais Clientes</strong> contém informações como nome, estado civil e localização, enquanto a tabela <strong>Produtos Cartões</strong> descreve características dos cartões oferecidos pelo banco.</p>
+<p>O ponto mais importante não está nas tabelas isoladamente, mas sim na forma como elas se conectam entre si.</p>
+<p>As setas indicam essas conexões e representam relações entre tabelas, que ocorrem por meio de chaves:</p>
+<ul>
+<li>A <em>Primary Key</em> identifica unicamente cada registro dentro de uma tabela</li>
+<li>A <em>Foreign Key</em> permite que uma tabela “aponte” para outra</li>
+</ul>
+<p>Por exemplo:</p>
+<ul>
+<li><p>O campo <code>cliente_id</code> aparece em múltiplas tabelas, permitindo relacionar informações pessoais, patrimoniais e de crédito de um mesmo cliente;</p></li>
+<li><p>O campo <code>perfil_cliente</code> conecta informações de segmentação com dados patrimoniais e de crédito;</p></li>
+<li><p>O campo <code>tipo_cartao</code> conecta clientes aos produtos oferecidos.</p></li>
+</ul>
+<p>Na prática, isso significa que os dados estão distribuídos, mas podem ser recombinados conforme a necessidade.</p>
+<p>É exatamente isso que faremos com SQL: reunir informações que estão separadas em diferentes tabelas para responder perguntas específicas.</p>
+<p>Neste curso, nosso foco estará principalmente em consultas e manipulação de dados, que são as habilidades mais utilizadas no dia a dia.</p>
+<p>Para começar, utilizaremos um banco de dados fictício de um e-commerce, composto por três tabelas:</p>
+<ul>
+<li><strong>CLIENTES</strong>;</li>
+<li><strong>PRODUTOS</strong>;</li>
+<li><strong>VENDAS</strong>.</li>
+</ul>
+<section id="fazendo-consultas-com-a-linguagem-sql-no-linguagem-r" class="level1">
+<h1>Fazendo Consultas com a Linguagem SQL no Linguagem R</h1>
+<p>A partir deste momento, aprenderemos a integrar o R com bancos de dados relacionais por meio da linguagem SQL.</p>
+<p>Com isso, poderemos realizar consultas (queries) diretamente em bases de dados potencialmente grandes, trazendo para o R apenas os dados já filtrados e organizados. Isso é especialmente útil quando desejamos realizar análises, visualizações ou aplicar modelos estatísticos de forma eficiente.</p>
+<p>Para isso, utilizaremos dois pacotes fundamentais. O paceote <code>DBI</code> fornece uma interface padronizada para conexão com diferentes bancos de dados. Já o pacote <code>RMariaDB</code> atua como o <em>driver</em> que permite ao R se conectar a bancos compatíveis com MySQL/MariaDB.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RMariaDB)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="estabelecendo-a-conexão" class="level2">
+<h2 class="anchored" data-anchor-id="estabelecendo-a-conexão">Estabelecendo a Conexão</h2>
+<p>Feito isso, nós iremos gerar uma conexão com o Banco de Dados Relacional a ser utilizado.</p>
+<p>No exemplo a seguir, utilizaremos um banco de dados hospedado online. Para isso, precisamos informar ao R alguns parâmetros essenciais:</p>
+<ul>
+<li><code>host</code>: endereço do servidor onde o banco está hospedado;</li>
+<li><code>port</code>: porta de comunicação;</li>
+<li><code>dbname</code>: nome do banco de dados;</li>
+<li><code>user</code> e <code>password</code>: credenciais de acesso.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>conexao <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MariaDB</span>(),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dbname =</span> <span class="st">"sql10823026"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">host =</span> <span class="st">"sql10.freesqldatabase.com"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">port =</span> <span class="dv">3306</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">user =</span> <span class="st">"sql10823026"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">password =</span> <span class="st">"bmbQ36Sh8A"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A função <code>dbConnect()</code>, do pacote <code>DBI</code>, estabelece essa conexão. Ao executá-la com sucesso, o R passa a ter acesso ao banco de dados especificado.</p>
+</section>
+<section id="explorando-o-banco-de-dados" class="level2">
+<h2 class="anchored" data-anchor-id="explorando-o-banco-de-dados">Explorando o Banco de Dados</h2>
+<p>Uma vez conectados, podemos verificar quais tabelas existem no banco de dados utilizando a função <code>dbListTables()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(<span class="at">conn =</span> conexao)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "CLIENTES" "PRODUTOS" "VENDAS"  </code></pre>
+</div>
+</div>
+<p>Essa função retorna os nomes das tabelas disponíveis. No nosso caso, temos:</p>
+<ul>
+<li><p><strong><em>CLIENTES</em></strong>;</p></li>
+<li><p><strong><em>PRODUTOS</em></strong>;</p></li>
+<li><p><strong><em>VENDAS</em></strong>.</p></li>
+</ul>
+</section>
+<section id="explorando-a-estrutura-de-uma-tabela" class="level2">
+<h2 class="anchored" data-anchor-id="explorando-a-estrutura-de-uma-tabela">Explorando a Estrutura de uma Tabela</h2>
+<p>Por outro lado, para entender melhor o conteúdo de uma tabela, é importante conhecer suas colunas. Para isso, utilizamos a função <code>dbListFields()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(conexao, <span class="st">"CLIENTES"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "COD_CLIENTE"   "PRIMEIRO_NOME" "SOBRENOME"     "EMAIL"        
+[5] "SEXO_BIO"      "QT_FILHOS"     "NASCIMENTO"    "IDADE"        </code></pre>
+</div>
+</div>
+<p>Com isso, conseguimos visualizar quais variáveis estão disponíveis na tabela <strong>CLIENTES</strong>, o que será fundamental para a construção de nossas consultas!</p>
+<p>Porém, é importante destacar que, caso desejemos acessar uma tabela de um banco de dados SQL a partir do R, podemos utilizar a função <code>tbl()</code>, do pacote <code>dplyr</code> (parte integrante do <code>tidyverse</code>):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_clientes <span class="ot">&lt;-</span> <span class="fu">tbl</span>(conexao, <span class="st">"CLIENTES"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df_clientes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:   table&lt;`CLIENTES`&gt; [?? x 8]
+# Database: mysql  [sql10823026@sql10.freesqldatabase.com:3306/sql10823026]
+   COD_CLIENTE PRIMEIRO_NOME SOBRENOME EMAIL SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+   &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;      &lt;int&gt;
+ 1 0S9ECF      Sandra        al-Ahmad  sand… F                4 1990-10-22    35
+ 2 PBDD0Y      Saahira       Griffith  saah… F                0 2003-01-27    23
+ 3 MYIJ0I      Ryan          al-Shakir ryan… M                3 1998-10-20    27
+ 4 EA1BC1      Zachary       Winston   zach… M                2 2006-11-03    19
+ 5 YSU3QR      Sounkhone     Mcclure   soun… M                1 2004-08-09    21
+ 6 045O5V      Jasmine       Marsh     jasm… F                1 1983-06-25    42
+ 7 33MTK1      Dhareef       el-Imam   dhar… M                4 2001-08-05    24
+ 8 40XCGF      Raheema       Garcia    rahe… F                3 1949-04-30    76
+ 9 MWNEYI      Ya'eesh       Valadez   ya'e… M                0 1978-09-03    47
+10 9D1M4R      Dylan         Pryor     dyla… M                3 1996-04-06    30
+# ℹ more rows</code></pre>
+</div>
+</div>
+<p>Nesse momento, algo importante acontece: <strong>os dados ainda não foram carregados para o R.</strong></p>
+<p>O objeto <code>df_clientes</code> funciona como uma referência à tabela existente no banco de dados. Noutras palavras, estamos apenas apontando para essa tabela, e não trazendo seus dados efetivamente para o ambiente do R.</p>
+<p>Para, de fato, importar os dados para o R na forma de um data frame, é necessário utilizar a função <code>collect()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_clientes <span class="ot">&lt;-</span> df_clientes  <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Se você já estiver se sentindo mais seguro(a), pode refazer esses passos de forma mais direta:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_clientes <span class="ot">&lt;-</span> <span class="fu">tbl</span>(conexao, <span class="st">"CLIENTES"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="executando-queries-em-sql-o-comando-select" class="level3">
+<h3 class="anchored" data-anchor-id="executando-queries-em-sql-o-comando-select">Executando <em>Queries</em> em SQL: O Comando <code>SELECT</code></h3>
+<p>O primeiro comando que aprenderemos na linguagem SQL será uma declaração de seleção.</p>
+<p>Lembrem-se de que, quando estivermos lidando com SQL, é comum nos referirmos aos códigos como declarações, comandos ou, de forma mais geral, como consultas (<em>queries</em>).</p>
+<p>Para iniciarmos a construção dessas declarações, o primeiro comando (ou, se preferirem, o primeiro “verbo”) a ser estudado será o <code>SELECT</code>.</p>
+<p>A palavra inglesa <em>select</em> significa “selecionar”. Portanto, será com o comando <code>SELECT</code> que realizaremos nossas consultas em tabelas de um banco de dados. Em outras palavras, sempre que quisermos extrair informações de uma tabela, estaremos, de alguma forma, utilizando o <code>SELECT</code>.</p>
+<p>Por essa razão, o comando <code>SELECT</code> é um dos elementos mais importantes, e absolutamente obrigatórios, da linguagem SQL.</p>
+<p>Lembrem-se também de um ponto conceitual importante: o resultado da execução de um comando <code>SELECT</code> será sempre uma nova tabela (ou, mais precisamente, um conjunto de resultados tabular), que ficará armazenado de forma temporária.</p>
+<p>Assim, ao executar um <code>SELECT</code>, não estamos alterando o banco de dados original. <strong>Estamos apenas consultando os dados e visualizando o resultado dessa consulta.</strong></p>
+<p>Dito de outra forma: o comando <code>SELECT</code> não salva automaticamente o resultado da consulta. Caso desejemos persistir esse resultado, isso deverá ser feito explicitamente por meio de outros comandos ou ferramentas, que veremos em momento oportuno mais à frente.</p>
+<p>Agora, retomando uma ideia importante que já discutimos anteriormente: quando estamos diante de um comando (ou de um “verbo”, se preferirem manter essa analogia), precisamos ser extremamente literais.</p>
+<p>Não adianta escrever apenas:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>SELECT</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Se fizermos isso, o banco de dados simplesmente não saberá o que deve ser selecionado. Em termos práticos, isso resultará em um erro de sintaxe, pois a instrução está incompleta.</p>
+<p>É como se estivéssemos dizendo apenas “selecione”, sem dizer o que deve ser selecionado.</p>
+<p>Por isso, o comando <code>SELECT</code> precisa, necessariamente, de complementos. O primeiro deles é o comando <code>FROM</code>, que indica de qual tabela queremos extrair os dados. Além disso, precisamos indicar quais colunas queremos selecionar.</p>
+<p>A estrutura mais básica possível de uma consulta SQL é, portanto, a seguinte:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemplo lúdico</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>SELECT colunas</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>FROM tabela</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Em muitos casos, especialmente quando estamos explorando uma tabela pela primeira vez, pode ser interessante selecionar todas as colunas disponíveis.</p>
+<p>Para isso, utilizamos o símbolo <code>*</code>, que significa “todas as colunas”.</p>
+<p>Assim, a instrução:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemplo lúdico</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>SELECT <span class="sc">*</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>FROM CLIENTES</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>pode ser lida como: “selecione todas as colunas da tabela CLIENTES”.</p>
+<p><strong>Agora, vamos executar essa consulta dentro do R!</strong></p>
+<p>Para isso, utilizaremos a função <code>dbGetQuery()</code>, do pacote <code>DBI</code>, que permite enviar comandos SQL diretamente ao banco de dados e retornar o resultado já no R:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="st">     *</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME SOBRENOME                       EMAIL SEXO_BIO
+1       0S9ECF        Sandra  al-Ahmad   sandra.al-ahmad@gmail.com        F
+2       PBDD0Y       Saahira  Griffith  saahira.griffith@gmail.com        F
+3       MYIJ0I          Ryan al-Shakir    ryan.al-shakir@gmail.com        M
+4       EA1BC1       Zachary   Winston   zachary.winston@gmail.com        M
+5       YSU3QR     Sounkhone   Mcclure sounkhone.mcclure@gmail.com        M
+6       045O5V       Jasmine     Marsh     jasmine.marsh@gmail.com        F
+7       33MTK1       Dhareef   el-Imam   dhareef.el-imam@gmail.com        M
+8       40XCGF       Raheema    Garcia    raheema.garcia@gmail.com        F
+9       MWNEYI       Ya'eesh   Valadez   ya'eesh.valadez@gmail.com        M
+10      9D1M4R         Dylan     Pryor       dylan.pryor@gmail.com        M
+   QT_FILHOS NASCIMENTO IDADE
+1          4 1990-10-22    35
+2          0 2003-01-27    23
+3          3 1998-10-20    27
+4          2 2006-11-03    19
+5          1 2004-08-09    21
+6          1 1983-06-25    42
+7          4 2001-08-05    24
+8          3 1949-04-30    76
+9          0 1978-09-03    47
+10         3 1996-04-06    30</code></pre>
+</div>
+</div>
+<p>Observe que, além do <code>SELECT</code> e do <code>FROM</code>, utilizamos também o comando <code>LIMIT 10</code>.</p>
+<p><strong>Esse comando serve para restringir a quantidade de linhas retornadas pela consulta.</strong> No caso, estamos pedindo ao banco que nos mostre apenas os 10 primeiros registros da tabela.</p>
+<p>Essa é uma prática bastante comum, <strong>e recomendada,</strong> quando estamos explorando tabelas, especialmente aquelas que podem conter um grande volume de dados. É algo como a função <code>head()</code> do R, lembram?</p>
+<hr>
+<p>Vamos praticar:</p>
+<p><strong>EXERCÍCIO 01</strong></p>
+<p>Tente selecionar as variáveis <code>SKU</code>, <code>TIPO</code> e <code>MARCA</code>, da tabela <strong><em>PRODUTOS</em></strong>. Depois, crie uma nova <em>query</em> que selecione as colunas <code>SKU</code>, <code>CUSTO_COMPRA</code> e ``, da tabela <strong><em>PRODUTOS</em></strong>.</p>
+<hr>
+</section>
+<section id="executando-operações-matemáticas-simples-com-o-verbo-select" class="level3">
+<h3 class="anchored" data-anchor-id="executando-operações-matemáticas-simples-com-o-verbo-select">Executando Operações Matemáticas Simples com o Verbo <code>SELECT</code></h3>
+<p>Também podemos utilizar o comando <code>SELECT</code> para realizar operações matemáticas diretamente sobre os dados!</p>
+<p>Por exemplo, a coluna <code>CUSTO_COMPRA</code> da tabela <strong>PRODUTOS</strong> está mensurada em reais. Podemos converter seus valores para dólares norte-americanos dividindo-os por 4,99.</p>
+<p>Para realizar uma divisão em SQL, utilizamos o operador <code>/</code>.</p>
+<p>Vamos, então, propor uma consulta em que selecionaremos:</p>
+<ul>
+<li>a variável <code>SKU</code>;</li>
+<li>a variável <code>CUSTO_COMPRA</code>, mas convertida para dólares.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="st">     SKU,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="st">     CUSTO_COMPRA / 4.99</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM PRODUTOS</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          SKU CUSTO_COMPRA / 4.99
+1  MDH3I0V22N             20.6413
+2  WW9YWSBC33             12.8257
+3  NWKTRU8JHK             12.2244
+4  07CFXBJT0P             10.0200
+5  DGSXFUOIUR             14.0281
+6  8CCUXCSCW7             22.4449
+7  EX966OLIZF             17.0341
+8  KG19TO2CSV             15.2305
+9  QNAC07NM3B             22.4449
+10 TM76F58KL8             23.8477</code></pre>
+</div>
+</div>
+<p>Em termos de cálculo, atingimos nosso objetivo, certo?</p>
+<p><strong>Porém, observe um detalhe importante: o nome da coluna resultante da divisão não ficou muito amigável.</strong></p>
+<p>Em vez de algo como <code>CUSTO_COMPRA_USD</code>, o banco retorna um nome genérico, normalmente baseado na própria expressão utilizada (algo como <code>CUSTO_COMPRA / 4.99</code>).</p>
+<p>Isso não é, necessariamente, um erro, mas pode dificultar a interpretação dos resultados, e é exatamente isso que vamos corrigir na sequência.</p>
+<p>Antes disso, vamos apresentar os principais operadores matemáticos utilizados em SQL:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 73%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operador</th>
+<th>Função</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>+</code></td>
+<td>Soma.</td>
+</tr>
+<tr class="even">
+<td><code>-</code></td>
+<td>Subtração.</td>
+</tr>
+<tr class="odd">
+<td><code>*</code></td>
+<td>Multiplicação.</td>
+</tr>
+<tr class="even">
+<td><code>/</code></td>
+<td>Divisão.</td>
+</tr>
+<tr class="odd">
+<td><code>%</code></td>
+<td>Módulo (retorna o resto de uma divisão). Exemplo: 15 % 4 resultará em 3.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong>EXERCÍCIO 02</strong></p>
+<p>A partir da tabela <strong><em>PRODUTOS</em></strong>, tente selecionar as variáveis <code>SKU</code>, <code>CUSTO_COMPRA</code> (mensurada em Reais) e <code>VALOR_VENDA</code> (mensurada em Euros - assuma €1 = R$ 5,88).</p>
+<hr>
+</section>
+<section id="renomeando-variáveis-as" class="level3">
+<h3 class="anchored" data-anchor-id="renomeando-variáveis-as">Renomeando Variáveis: <code>AS</code></h3>
+<p>O <code>AS</code> é o responsável pela geração de <em>alias</em> (apelidos) no SQL.</p>
+<p><em>Apelidos?</em></p>
+<p><strong>Sim, apelidos!</strong></p>
+<p>Lembrem-se de que comentamos que o comando <code>SELECT</code> gera uma consulta, em forma de uma nova tabela, mas que não necessariamente ficará salva na sua máquina e/ou nuvem!</p>
+<p>Vamos observar isso na prática.</p>
+<p>Suponha que desejemos selecionar as colunas <code>COD_CLIENTE</code>, <code>PRIMEIRO_NOME</code> e <code>SOBRENOME</code>, da tabela <strong>CLIENTES</strong>, e renomeá-las da seguinte maneira:</p>
+<ol type="1">
+<li><code>COD_CLIENTE</code> para <code>ID</code>;</li>
+<li><code>PRIMEIRO_NOME</code> para <code>FIRST_NAME</code>;</li>
+<li><code>SOBRENOME</code> para <code>SURNAME</code>:</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COD_CLIENTE AS ID,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="st">     PRIMEIRO_NOME AS FIRST_NAME,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="st">     SOBRENOME AS SURNAME</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       ID FIRST_NAME   SURNAME
+1  0S9ECF     Sandra  al-Ahmad
+2  PBDD0Y    Saahira  Griffith
+3  MYIJ0I       Ryan al-Shakir
+4  EA1BC1    Zachary   Winston
+5  YSU3QR  Sounkhone   Mcclure
+6  045O5V    Jasmine     Marsh
+7  33MTK1    Dhareef   el-Imam
+8  40XCGF    Raheema    Garcia
+9  MWNEYI    Ya'eesh   Valadez
+10 9D1M4R      Dylan     Pryor</code></pre>
+</div>
+</div>
+<p>O ponto importante é o seguinte: <strong>as variáveis foram renomeadas apenas para o resultado dessa consulta,</strong> ou seja, o banco de dados original não foi alterado.</p>
+<p>Vamos confirmar isso consultando novamente a tabela original:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="st">     *</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME SOBRENOME                       EMAIL SEXO_BIO
+1       0S9ECF        Sandra  al-Ahmad   sandra.al-ahmad@gmail.com        F
+2       PBDD0Y       Saahira  Griffith  saahira.griffith@gmail.com        F
+3       MYIJ0I          Ryan al-Shakir    ryan.al-shakir@gmail.com        M
+4       EA1BC1       Zachary   Winston   zachary.winston@gmail.com        M
+5       YSU3QR     Sounkhone   Mcclure sounkhone.mcclure@gmail.com        M
+6       045O5V       Jasmine     Marsh     jasmine.marsh@gmail.com        F
+7       33MTK1       Dhareef   el-Imam   dhareef.el-imam@gmail.com        M
+8       40XCGF       Raheema    Garcia    raheema.garcia@gmail.com        F
+9       MWNEYI       Ya'eesh   Valadez   ya'eesh.valadez@gmail.com        M
+10      9D1M4R         Dylan     Pryor       dylan.pryor@gmail.com        M
+   QT_FILHOS NASCIMENTO IDADE
+1          4 1990-10-22    35
+2          0 2003-01-27    23
+3          3 1998-10-20    27
+4          2 2006-11-03    19
+5          1 2004-08-09    21
+6          1 1983-06-25    42
+7          4 2001-08-05    24
+8          3 1949-04-30    76
+9          0 1978-09-03    47
+10         3 1996-04-06    30</code></pre>
+</div>
+</div>
+<p>Notaram?</p>
+<p>Os nomes <code>ID</code>, <code>FIRST_NAME</code> e <code>SURNAME</code> foram apenas apelidos temporários para as variáveis <code>COD_CLIENTE</code>, <code>PRIMEIRO_NOME</code> e <code>SOBRENOME</code>. Isso, portanto, é só um efeito da consulta.</p>
+<p>O <code>AS</code> não serve apenas para renomear colunas existentes, ele também pode ser utilizado para dar nomes a colunas criadas a partir de expressões.</p>
+<p>Por exemplo, no caso em que calculamos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>CUSTO_COMPRA <span class="sc">/</span> <span class="fl">4.99</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>podemos escrever:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>CUSTO_COMPRA <span class="sc">/</span> <span class="fl">4.99</span> AS CUSTO_COMPRA_USD</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>e isso torna o resultado muito mais legível.</p>
+<hr>
+<p><strong>EXERCÍCIO 03</strong></p>
+<p>Lembram-se quando aprendemos a fazer contas simples no SQL e queríamos o custo das compras em US$?</p>
+<p>Lembram-se que o nome da coluna ficou algo como <code>CUSTO_COMPRA / 4.99</code>?</p>
+<p>Pois é!</p>
+<p>Selecione as variáveis <code>SKU</code>, <code>CUSTO_COMPRA</code> e <code>VALOR_VENDA</code>, e apresente seus valores em dólares, garantindo que os nomes das colunas permaneçam organizados e compreensíveis.</p>
+<p><strong>EXERCÍCIO 04</strong></p>
+<p>A partir da <em>query</em> do <strong>Exercício 03</strong>, crie uma nova variável chamada <code>LUCRO_BRUTO</code>, definida como a diferença entre o valor de venda e o custo da compra.</p>
+<hr>
+</section>
+<section id="arredondando-valores-a-função-round" class="level3">
+<h3 class="anchored" data-anchor-id="arredondando-valores-a-função-round">Arredondando Valores: A Função <code>ROUND()</code></h3>
+<p>As colunas <code>CUSTO_COMPRA</code>, <code>VALOR_VENDA</code> e <code>LUCRO_BRUTO</code> que criamos nos <strong>Exercícios 03 e 04</strong> não ficaram tão legais, certo?</p>
+<p>As operações matemáticas propostas geraram valores com muitas casas decimais, o que dificulta a leitura e interpretação dos resultados.</p>
+<p>A maneira como declaramos a função responsável pelo arredondamento numérico no SQL é um pouco diferente do que vimos até o momento.</p>
+<p>A função <code>ROUND()</code>, assim como no R, exige dois argumentos:</p>
+<ul>
+<li>o primeiro deve ser o número (ou expressão numérica) que desejamos arredondar;</li>
+<li>o segundo deve ser a quantidade de casas decimais.</li>
+</ul>
+<p>Observe a seguinte declaração:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ROUND</span>(CUSTO_COMPRA <span class="sc">/</span> <span class="fl">4.99</span>, <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>No exemplo acima, estamos dizendo ao banco de dados: “pegue o resultado da divisão <code>CUSTO_COMPRA / 4.99</code> e arredonde para 2 casas decimais”.</p>
+<p>Assim como vimos anteriormente, podemos utilizar essa expressão dentro de um <code>SELECT</code>.</p>
+<p>Por exemplo:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="st">     SKU,</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="st">     ROUND(CUSTO_COMPRA / 4.99, 2) AS CUSTO_COMPRA_USD</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM PRODUTOS</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          SKU CUSTO_COMPRA_USD
+1  MDH3I0V22N            20.64
+2  WW9YWSBC33            12.83
+3  NWKTRU8JHK            12.22
+4  07CFXBJT0P            10.02
+5  DGSXFUOIUR            14.03
+6  8CCUXCSCW7            22.44
+7  EX966OLIZF            17.03
+8  KG19TO2CSV            15.23
+9  QNAC07NM3B            22.44
+10 TM76F58KL8            23.85</code></pre>
+</div>
+</div>
+</section>
+<section id="contando-valores-com-o-sql" class="level3">
+<h3 class="anchored" data-anchor-id="contando-valores-com-o-sql">Contando Valores com o SQL</h3>
+<p>O comando <code>COUNT(*)</code> possibilita a contagem de registros em dada tabela:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COUNT(*) AS QTDE_LINHAS</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  QTDE_LINHAS
+1         100</code></pre>
+</div>
+</div>
+</section>
+<section id="selecionando-valores-únicos-com-o-verbo-select-distinct" class="level3">
+<h3 class="anchored" data-anchor-id="selecionando-valores-únicos-com-o-verbo-select-distinct">Selecionando Valores Únicos com o Verbo <code>SELECT DISTINCT</code></h3>
+<p>O comando <code>SELECT DISTINCT</code> é utilizado para evidenciar valores únicos em uma tabela, ou seja, valores não duplicados.</p>
+<p>Podemos utilizar o <code>SELECT DISTINCT</code>, por exemplo, para identificar quais são as filiais existentes em nossa empresa de e-commerce.</p>
+<p>Note que a coluna <code>LOJA</code>, da tabela <strong>VENDAS</strong>, contém os nomes das filiais, porém com repetições, afinal, uma mesma filial pode aparecer em diversas vendas.</p>
+<p>Para visualizar apenas os valores únicos dessa variável, podemos executar:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT DISTINCT</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="st">     LOJA</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM VENDAS"</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   LOJA
+1 São José do Rio Preto
+2             Guarulhos
+3              Campinas
+4        Ribeirão Preto
+5                Osasco
+6            São Carlos
+7             São Paulo
+8           Santo André</code></pre>
+</div>
+</div>
+<p><strong>Observe que, nesse caso, estamos listando as filiais existentes, e não contando quantas são.</strong></p>
+<p>Caso desejássemos obter a quantidade de filiais, precisaríamos de uma abordagem adicional (veremos isso mais adiante).</p>
+<hr>
+<p><strong>EXERCÍCIO 05</strong></p>
+<p>A abordagem a seguir <strong>NÃO</strong> funciona para verificarmos os valores únicos da variável <code>LOJA</code>. Por quê?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT DISTINCT</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="st">     *</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM VENDAS"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Dica: pense no que significa aplicar o <code>DISTINCT</code> quando estamos selecionando todas as colunas ao mesmo tempo.</p>
+<p><strong>EXERCÍCIO 06</strong></p>
+<p>Proponha uma abordagem que evidencie quais são as modalidades de pagamento aceitas pela nossa empresa.</p>
+<p>Dica: identifique a variável que representa a forma de pagamento e utilize o comando adequado para eliminar duplicações.</p>
+<hr>
+</section>
+<section id="concatenação-de-textos" class="level3">
+<h3 class="anchored" data-anchor-id="concatenação-de-textos">Concatenação de Textos</h3>
+<p>No SQL, também podemos concatenar textos, isto é, juntar valores textuais para gerar novas observações em novas variáveis.</p>
+<p>Por exemplo, na Tabela <strong>CLIENTES</strong>, temos os primeiros nomes e sobrenomes de todos os nossos clientes, certo?</p>
+<p>E se quiséssemos criar uma variável que contivesse os nomes completos desses indivíduos?</p>
+<p>Em bancos de dados como MySQL/MariaDB, utilizamos a função <code>CONCAT()</code> para realizar essa operação:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COD_CLIENTE,</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="st">     PRIMEIRO_NOME,</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="st">     SOBRENOME,</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="st">     CONCAT(PRIMEIRO_NOME, SOBRENOME) AS NOME_COMPLETO</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME SOBRENOME    NOME_COMPLETO
+1       0S9ECF        Sandra  al-Ahmad   Sandraal-Ahmad
+2       PBDD0Y       Saahira  Griffith  SaahiraGriffith
+3       MYIJ0I          Ryan al-Shakir    Ryanal-Shakir
+4       EA1BC1       Zachary   Winston   ZacharyWinston
+5       YSU3QR     Sounkhone   Mcclure SounkhoneMcclure
+6       045O5V       Jasmine     Marsh     JasmineMarsh
+7       33MTK1       Dhareef   el-Imam   Dhareefel-Imam
+8       40XCGF       Raheema    Garcia    RaheemaGarcia
+9       MWNEYI       Ya'eesh   Valadez   Ya'eeshValadez
+10      9D1M4R         Dylan     Pryor       DylanPryor</code></pre>
+</div>
+</div>
+<p>Perceberam que os valores foram concatenados/colapsados?</p>
+<p>Porém, ainda temos um problema: não há espaço entre o nome e o sobrenome. Podemos resolver isso inserindo explicitamente um espaço:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COD_CLIENTE,</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="st">     PRIMEIRO_NOME,</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="st">     SOBRENOME,</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="st">     CONCAT(PRIMEIRO_NOME, ' ', SOBRENOME) AS NOME_COMPLETO</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME SOBRENOME     NOME_COMPLETO
+1       0S9ECF        Sandra  al-Ahmad   Sandra al-Ahmad
+2       PBDD0Y       Saahira  Griffith  Saahira Griffith
+3       MYIJ0I          Ryan al-Shakir    Ryan al-Shakir
+4       EA1BC1       Zachary   Winston   Zachary Winston
+5       YSU3QR     Sounkhone   Mcclure Sounkhone Mcclure
+6       045O5V       Jasmine     Marsh     Jasmine Marsh
+7       33MTK1       Dhareef   el-Imam   Dhareef el-Imam
+8       40XCGF       Raheema    Garcia    Raheema Garcia
+9       MWNEYI       Ya'eesh   Valadez   Ya'eesh Valadez
+10      9D1M4R         Dylan     Pryor       Dylan Pryor</code></pre>
+</div>
+</div>
+<p>Agora sim, temos uma nova variável <code>NOME_COMPLETO</code> com a formatação adequada!</p>
+</section>
+<section id="principais-operadores-na-linguagem-sql" class="level3">
+<h3 class="anchored" data-anchor-id="principais-operadores-na-linguagem-sql">Principais Operadores na Linguagem SQL</h3>
+<p>Nós já apresentamos os principais operadores algébricos, lembram-se?</p>
+<p><strong><em>Principais Operadores Algébricos</em></strong> | Operador | Função | | :——: | ——————————————————- | | <code>+</code> | Soma | | <code>-</code> | Subtração | | <code>*</code> | Multiplicação | | <code>/</code> | Divisão | | <code>%</code> | Módulo (resto da divisão). Exemplo: 15 % 4 resulta em 3 |</p>
+<p>Esses operadores são utilizados para realizar cálculos numéricos.</p>
+<p><br></p>
+<p><strong><em>Principais Operadores de Comparação</em></strong></p>
+<p>Além dos operadores algébricos, temos os operadores de comparação, que permitem comparar valores: | Operador | Função | | :——-: | ————————————- | | <code>=</code> | Igual a | | <code>&lt;&gt;</code> | Diferente de | | <code>!=</code> | Diferente de | | <code>&gt;</code> | Maior que | | <code>&lt;</code> | Menor que | | <code>&gt;=</code> | Maior ou igual | | <code>&lt;=</code> | Menor ou igual | | <code>BETWEEN</code> | Entre dois valores | | <code>LIKE</code> | Busca por padrão de texto | | <code>IN</code> | Verifica se o valor está em uma lista |</p>
+<p><br></p>
+<p><strong><em>Principais Operadores Lógicos</em></strong></p>
+<p>Também podemos combinar condições utilizando operadores lógicos: | Operador | Significado | | :——-: | ————- | | <code>NOT</code> | Não | | <code>AND</code> | E | | <code>OR</code> | Ou | | <code>IS NULL</code> | Valor ausente |</p>
+<p><br></p>
+<p>Dito isso, suponha que queiramos identificar os clientes maiores de idade, considerando a maioridade a partir dos 18 anos.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COD_CLIENTE,</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="st">     IDADE,</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="st">     IDADE &gt;= 18 AS MAIORIDADE</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM CLIENTES</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE IDADE MAIORIDADE
+1       0S9ECF    35          1
+2       PBDD0Y    23          1
+3       MYIJ0I    27          1
+4       EA1BC1    19          1
+5       YSU3QR    21          1
+6       045O5V    42          1
+7       33MTK1    24          1
+8       40XCGF    76          1
+9       MWNEYI    47          1
+10      9D1M4R    30          1</code></pre>
+</div>
+</div>
+<p>Observe que criamos uma nova variável chamada <code>MAIORIDADE</code>, que assume valores 0 ou 1.</p>
+<p>Podemos também verificar se a idade está dentro de um determinado intervalo:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="st">     COD_CLIENTE,</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="st">     IDADE,</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="st">     IDADE BETWEEN 18 AND 60 AS FAIXA_IDADE</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="st">   LIMIT 10"</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE IDADE FAIXA_IDADE
+1       0S9ECF    35           1
+2       PBDD0Y    23           1
+3       MYIJ0I    27           1
+4       EA1BC1    19           1
+5       YSU3QR    21           1
+6       045O5V    42           1
+7       33MTK1    24           1
+8       40XCGF    76           0
+9       MWNEYI    47           1
+10      9D1M4R    30           1</code></pre>
+</div>
+</div>
+<p>Aqui estamos verificando se a idade está entre 18 e 60 anos.</p>
+<hr>
+<p><strong>EXERCÍCIO 07</strong></p>
+<p>Utilizando a Tabela <strong>VENDAS</strong>, selecione as linhas em que o valor da coluna <code>QUANTIDADE</code> seja maior que 4.</p>
+<p><strong>EXERCÍCIO 08</strong> Utilizando a Tabela <strong>CLIENTES</strong>, crie uma variável que classifique o tamanho da família com base no número de filhos:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quantidade de Filhos</th>
+<th>Tamanho da Família</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0 a 1 filho(a)</td>
+<td>Família Pequena</td>
+</tr>
+<tr class="even">
+<td>2 a 3 filhos(as)</td>
+<td>Família Média</td>
+</tr>
+<tr class="odd">
+<td>Acima de 3 filhos(as)</td>
+<td>Família Grande</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="utilizando-filtros-where" class="level3">
+<h3 class="anchored" data-anchor-id="utilizando-filtros-where">Utilizando Filtros: <code>WHERE</code></h3>
+<p>Percebam que, até o momento, não houve uma filtragem das observações com 18 anos de idade ou mais. O que fizemos anteriormente foi identificar esses indivíduos, por meio da criação de uma variável <em>dummy</em>.</p>
+<p>Caso quiséssemos, de fato, filtrar as observações maiores de idade, deveríamos utilizar o comando <code>WHERE</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="st">     *</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="st">   WHERE IDADE &gt;= 18"</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    COD_CLIENTE  PRIMEIRO_NOME      SOBRENOME                            EMAIL
+1        0S9ECF         Sandra       al-Ahmad        sandra.al-ahmad@gmail.com
+2        PBDD0Y        Saahira       Griffith       saahira.griffith@gmail.com
+3        MYIJ0I           Ryan      al-Shakir         ryan.al-shakir@gmail.com
+4        EA1BC1        Zachary        Winston        zachary.winston@gmail.com
+5        YSU3QR      Sounkhone        Mcclure      sounkhone.mcclure@gmail.com
+6        045O5V        Jasmine          Marsh          jasmine.marsh@gmail.com
+7        33MTK1        Dhareef        el-Imam        dhareef.el-imam@gmail.com
+8        40XCGF        Raheema         Garcia         raheema.garcia@gmail.com
+9        MWNEYI        Ya'eesh        Valadez        ya'eesh.valadez@gmail.com
+10       9D1M4R          Dylan          Pryor            dylan.pryor@gmail.com
+11       RECSQA           Alea      al-Rehman         alea.al-rehman@gmail.com
+12       XHUUHD         Rachel         Abrams          rachel.abrams@gmail.com
+13       IXP3J4        Sultana       Williams       sultana.williams@gmail.com
+14       32N7IU          Shawn     Cunningham       shawn.cunningham@gmail.com
+15       L85YED        Brandon        Quezada        brandon.quezada@gmail.com
+16       CAFJ2Z        Zachary         Abeyta         zachary.abeyta@gmail.com
+17       4RCGEJ        Dalicia           Alex           dalicia.alex@gmail.com
+18       JCVNC9      Demitries           Tree         demitries.tree@gmail.com
+19       702ZG7         Trevon          Xiong           trevon.xiong@gmail.com
+20       3KNAA4         Ismael          Klann           ismael.klann@gmail.com
+21       TLL2Z9       Benjamin        Swenson       benjamin.swenson@gmail.com
+22       4SS5NK        Shadhaa Ramirez Arenas shadhaa.ramirez arenas@gmail.com
+23       RSMZRA          Yusra          Horst            yusra.horst@gmail.com
+24       61LJ3M        Jazzmyn           Nill           jazzmyn.nill@gmail.com
+25       HHM7DU           Mary           Tran              mary.tran@gmail.com
+26       XII0EF        Johnnie         Carter         johnnie.carter@gmail.com
+27       4Y0XTG       Gretchen        Mcfalls       gretchen.mcfalls@gmail.com
+28       6PZ0MK         Chuong         Billie          chuong.billie@gmail.com
+29       WB1DTE         Daniel        Braxton         daniel.braxton@gmail.com
+30       Q7ZELB         Olivia        Makaiwi         olivia.makaiwi@gmail.com
+31       AVONH2          Aayid         Mestas           aayid.mestas@gmail.com
+32       BGBUHS       Tahleela     el-Shareef    tahleela.el-shareef@gmail.com
+33       LS1A9Q         Mariya       el-Amini        mariya.el-amini@gmail.com
+34       9GGAWK        Allison         Powers         allison.powers@gmail.com
+35       AHN1A6 Matthew-Angelo        Kumagai matthew-angelo.kumagai@gmail.com
+36       X77KNT           Paul           Ball              paul.ball@gmail.com
+37       0QABKK          Janea          Allen            janea.allen@gmail.com
+38       CWZG6I         Brooke          Vigil           brooke.vigil@gmail.com
+39       0X4OVU      Joylensia         Harris       joylensia.harris@gmail.com
+40       T3N7EJ       Wajdiyya         Yancey        wajdiyya.yancey@gmail.com
+41       JE1JG2       Julianna        Wallace       julianna.wallace@gmail.com
+42       ZZOF4T      Manuelito         Holmes       manuelito.holmes@gmail.com
+43       ZXIJ1G           Eric         Mccall            eric.mccall@gmail.com
+44       76SB4S        Michael     al-Rahmani     michael.al-rahmani@gmail.com
+45       VQUNFJ          Alawi        Landrum          alawi.landrum@gmail.com
+46       ZULPBL         Joseph        Swanson         joseph.swanson@gmail.com
+47       IEXADH         Dakota   Tsinnijinnie    dakota.tsinnijinnie@gmail.com
+48       0GUW80        Brandon        Sumbunu        brandon.sumbunu@gmail.com
+49       HA6IEW        Jaleela         Ambriz         jaleela.ambriz@gmail.com
+50       PTF6UZ         Damani         Adkins          damani.adkins@gmail.com
+51       EMH7C2         Dwayne         Forrey          dwayne.forrey@gmail.com
+52       GEY8UY          Wyatt       Arechiga         wyatt.arechiga@gmail.com
+53       B4PXL2         Ashley        Camacho         ashley.camacho@gmail.com
+54       HDU5LD          Vanya        Mcguire          vanya.mcguire@gmail.com
+55       2ZBU1S        Kendall      Hernandez      kendall.hernandez@gmail.com
+56       4H888J       Cristina        Younger       cristina.younger@gmail.com
+57       30LKMS            Rey        el-Lone            rey.el-lone@gmail.com
+58       CK9HZO         Rashaa       Gallegos        rashaa.gallegos@gmail.com
+59       R79IU9         Steven         Nguyen          steven.nguyen@gmail.com
+60       G0I1JN           Luis          Moote             luis.moote@gmail.com
+61       EJ1MX0         Teresa         Foster          teresa.foster@gmail.com
+62       P9ISZ1        Calypso           Lara           calypso.lara@gmail.com
+63       G6S114       Nicholas       al-Assaf      nicholas.al-assaf@gmail.com
+64       L4F17I          Dylan      Verhaeghe        dylan.verhaeghe@gmail.com
+65       8J69DK          Nancy        Cuellar          nancy.cuellar@gmail.com
+66       SO7IRF            Sad        Kennedy            sad.kennedy@gmail.com
+67       5INIIJ          Kevin           Ruiz             kevin.ruiz@gmail.com
+68       VFU1CC          Aaron       el-Salim         aaron.el-salim@gmail.com
+69       877WSS       Makenzie           Oros          makenzie.oros@gmail.com
+70       YDBJ9U          Warda        Montoya          warda.montoya@gmail.com
+71       CGBB8D         Connor       el-Malik        connor.el-malik@gmail.com
+72       Q7W410      Mujaahida         Schlom       mujaahida.schlom@gmail.com
+73       FLNG2K         Collin           Knox            collin.knox@gmail.com
+74       EAKLHO        Brandon           Reed           brandon.reed@gmail.com
+75       YGC3SQ          Caleb      Fernandes        caleb.fernandes@gmail.com
+76       YRSXZC           Leah       el-Hasen          leah.el-hasen@gmail.com
+77       8V6UK4            Eli           Diep               eli.diep@gmail.com
+78       5J0AH3        Taamira       Thompson       taamira.thompson@gmail.com
+79       5BDZUM         Aubrey            Kee             aubrey.kee@gmail.com
+80       DXUVD1          Jacob      Neighbors        jacob.neighbors@gmail.com
+81       2AOPIX        Mallory       Anderson       mallory.anderson@gmail.com
+82       1EO780          Bunga           Odom             bunga.odom@gmail.com
+83       WDHLIF       Maxfield   Perez Crespo  maxfield.perez crespo@gmail.com
+84       BNG5W1    Christopher      Armstrong  christopher.armstrong@gmail.com
+85       34AYOX          Kevin       Williams         kevin.williams@gmail.com
+86       K80Z2M         Angela      Hernandez       angela.hernandez@gmail.com
+87       OOLHRF          Jacob       Sisneros         jacob.sisneros@gmail.com
+88       CU4P89         Denesh   Amphonephong    denesh.amphonephong@gmail.com
+89       KJSRXV        Bronson     Villagrana     bronson.villagrana@gmail.com
+90       0J6LUU         Husain         Garcia          husain.garcia@gmail.com
+91       HMUNDA      Fat'hiyaa     Kaibetoney   fat'hiyaa.kaibetoney@gmail.com
+92       U7RIFC         Ty'Lia   Saracay Pena    ty'lia.saracay pena@gmail.com
+93       0DO1V1           Sage           Link              sage.link@gmail.com
+94       1BC2X6         Jaabir       Martinez        jaabir.martinez@gmail.com
+95       JGQA7A       Yordanos             Vu            yordanos.vu@gmail.com
+96       BSTSP0          Jesse          Somer            jesse.somer@gmail.com
+97       RK0T0N        Raaniya          Smith          raaniya.smith@gmail.com
+98       Y6EFV2          Tuyen        Hauptli          tuyen.hauptli@gmail.com
+99       HAGM53        Vanisha         Bodell         vanisha.bodell@gmail.com
+100      MD505S        Tareefa       al-Javed       tareefa.al-javed@gmail.com
+    SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+1          F         4 1990-10-22    35
+2          F         0 2003-01-27    23
+3          M         3 1998-10-20    27
+4          M         2 2006-11-03    19
+5          M         1 2004-08-09    21
+6          F         1 1983-06-25    42
+7          M         4 2001-08-05    24
+8          F         3 1949-04-30    76
+9          M         0 1978-09-03    47
+10         M         3 1996-04-06    30
+11         F         1 2001-04-22    24
+12         F         0 2000-11-05    25
+13         F         0 1968-09-06    57
+14         M         0 2005-04-26    20
+15         M         0 2004-03-06    22
+16         M         1 1958-03-12    68
+17         F         2 2006-08-07    19
+18         M         2 2001-06-06    24
+19         M         0 1972-04-16    53
+20         M         0 1971-09-22    54
+21         M         3 2006-10-04    19
+22         F         1 1980-10-13    45
+23         F         2 1962-09-04    63
+24         F         0 1995-10-27    30
+25         F         1 1996-12-12    29
+26         M         1 2004-04-18    21
+27         F         0 1987-09-12    38
+28         M         1 1971-02-24    55
+29         M         2 1994-04-11    32
+30         F         0 1967-06-09    58
+31         M         1 1985-06-08    40
+32         F         1 2004-05-18    21
+33         F         2 1996-06-30    29
+34         F         0 1995-12-25    30
+35         M         1 1990-12-25    35
+36         M         2 1979-10-26    46
+37         F         0 1999-04-14    27
+38         F         0 2000-08-11    25
+39         F         2 1985-02-27    41
+40         F         1 2003-04-08    23
+41         F         4 1983-08-10    42
+42         M         1 1961-04-23    64
+43         M         3 1951-08-31    74
+44         M         1 1962-09-07    63
+45         M         4 1949-06-22    76
+46         M         1 1991-04-02    35
+47         M         0 1997-02-07    29
+48         M         2 2002-05-19    23
+49         F         2 1999-05-15    26
+50         M         1 1961-03-29    65
+51         M         1 1981-03-25    45
+52         M         2 1999-03-16    27
+53         F         3 1976-06-23    49
+54         F         0 2003-03-05    23
+55         M         2 1984-01-07    42
+56         F         2 1982-02-03    44
+57         M         1 1990-10-20    35
+58         F         2 1979-09-04    46
+59         M         0 2006-05-21    19
+60         M         2 1955-10-10    70
+61         F         2 1977-08-25    48
+62         F         3 1989-09-18    36
+63         M         0 1990-08-18    35
+64         M         2 1997-05-01    28
+65         F         0 1966-02-16    60
+66         M         1 1983-09-28    42
+67         M         0 1999-10-07    26
+68         M         0 2003-09-24    22
+69         F         0 1969-08-24    56
+70         F         1 1952-11-23    73
+71         M         5 1969-05-17    56
+72         F         0 1965-01-17    61
+73         M         2 1991-01-10    35
+74         M         3 2001-02-19    25
+75         M         0 1969-11-12    56
+76         F         2 1970-12-21    55
+77         M         2 1965-05-19    60
+78         F         1 1969-08-04    56
+79         F         3 2001-07-11    24
+80         M         2 1990-08-01    35
+81         F         0 1954-10-20    71
+82         F         1 1983-12-14    42
+83         M         0 2000-05-05    25
+84         M         2 1999-05-12    26
+85         M         1 1994-12-31    31
+86         F         4 1985-02-07    41
+87         M         0 1949-02-11    77
+88         M         2 1982-07-01    43
+89         M         0 2003-04-19    22
+90         M         5 2006-11-04    19
+91         F         3 1996-10-25    29
+92         F         1 1997-02-20    29
+93         M         1 1967-01-17    59
+94         M         5 2004-03-20    22
+95         F         2 2004-02-17    22
+96         M         0 1967-04-08    59
+97         F         1 2006-02-23    20
+98         F         0 1989-05-08    36
+99         F         1 1977-06-03    48
+100        F         1 2002-12-08    23</code></pre>
+</div>
+</div>
+<p>Podemos também combinar múltiplas condições. Por exemplo, suponha que quiséssemos selecionar clientes maiores de idade e com idade inferior a 60 anos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="st">     *</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM CLIENTES</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="st">   WHERE IDADE &gt;= 18 AND IDADE &lt; 60"</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE  PRIMEIRO_NOME      SOBRENOME                            EMAIL
+1       0S9ECF         Sandra       al-Ahmad        sandra.al-ahmad@gmail.com
+2       PBDD0Y        Saahira       Griffith       saahira.griffith@gmail.com
+3       MYIJ0I           Ryan      al-Shakir         ryan.al-shakir@gmail.com
+4       EA1BC1        Zachary        Winston        zachary.winston@gmail.com
+5       YSU3QR      Sounkhone        Mcclure      sounkhone.mcclure@gmail.com
+6       045O5V        Jasmine          Marsh          jasmine.marsh@gmail.com
+7       33MTK1        Dhareef        el-Imam        dhareef.el-imam@gmail.com
+8       MWNEYI        Ya'eesh        Valadez        ya'eesh.valadez@gmail.com
+9       9D1M4R          Dylan          Pryor            dylan.pryor@gmail.com
+10      RECSQA           Alea      al-Rehman         alea.al-rehman@gmail.com
+11      XHUUHD         Rachel         Abrams          rachel.abrams@gmail.com
+12      IXP3J4        Sultana       Williams       sultana.williams@gmail.com
+13      32N7IU          Shawn     Cunningham       shawn.cunningham@gmail.com
+14      L85YED        Brandon        Quezada        brandon.quezada@gmail.com
+15      4RCGEJ        Dalicia           Alex           dalicia.alex@gmail.com
+16      JCVNC9      Demitries           Tree         demitries.tree@gmail.com
+17      702ZG7         Trevon          Xiong           trevon.xiong@gmail.com
+18      3KNAA4         Ismael          Klann           ismael.klann@gmail.com
+19      TLL2Z9       Benjamin        Swenson       benjamin.swenson@gmail.com
+20      4SS5NK        Shadhaa Ramirez Arenas shadhaa.ramirez arenas@gmail.com
+21      61LJ3M        Jazzmyn           Nill           jazzmyn.nill@gmail.com
+22      HHM7DU           Mary           Tran              mary.tran@gmail.com
+23      XII0EF        Johnnie         Carter         johnnie.carter@gmail.com
+24      4Y0XTG       Gretchen        Mcfalls       gretchen.mcfalls@gmail.com
+25      6PZ0MK         Chuong         Billie          chuong.billie@gmail.com
+26      WB1DTE         Daniel        Braxton         daniel.braxton@gmail.com
+27      Q7ZELB         Olivia        Makaiwi         olivia.makaiwi@gmail.com
+28      AVONH2          Aayid         Mestas           aayid.mestas@gmail.com
+29      BGBUHS       Tahleela     el-Shareef    tahleela.el-shareef@gmail.com
+30      LS1A9Q         Mariya       el-Amini        mariya.el-amini@gmail.com
+31      9GGAWK        Allison         Powers         allison.powers@gmail.com
+32      AHN1A6 Matthew-Angelo        Kumagai matthew-angelo.kumagai@gmail.com
+33      X77KNT           Paul           Ball              paul.ball@gmail.com
+34      0QABKK          Janea          Allen            janea.allen@gmail.com
+35      CWZG6I         Brooke          Vigil           brooke.vigil@gmail.com
+36      0X4OVU      Joylensia         Harris       joylensia.harris@gmail.com
+37      T3N7EJ       Wajdiyya         Yancey        wajdiyya.yancey@gmail.com
+38      JE1JG2       Julianna        Wallace       julianna.wallace@gmail.com
+39      ZULPBL         Joseph        Swanson         joseph.swanson@gmail.com
+40      IEXADH         Dakota   Tsinnijinnie    dakota.tsinnijinnie@gmail.com
+41      0GUW80        Brandon        Sumbunu        brandon.sumbunu@gmail.com
+42      HA6IEW        Jaleela         Ambriz         jaleela.ambriz@gmail.com
+43      EMH7C2         Dwayne         Forrey          dwayne.forrey@gmail.com
+44      GEY8UY          Wyatt       Arechiga         wyatt.arechiga@gmail.com
+45      B4PXL2         Ashley        Camacho         ashley.camacho@gmail.com
+46      HDU5LD          Vanya        Mcguire          vanya.mcguire@gmail.com
+47      2ZBU1S        Kendall      Hernandez      kendall.hernandez@gmail.com
+48      4H888J       Cristina        Younger       cristina.younger@gmail.com
+49      30LKMS            Rey        el-Lone            rey.el-lone@gmail.com
+50      CK9HZO         Rashaa       Gallegos        rashaa.gallegos@gmail.com
+51      R79IU9         Steven         Nguyen          steven.nguyen@gmail.com
+52      EJ1MX0         Teresa         Foster          teresa.foster@gmail.com
+53      P9ISZ1        Calypso           Lara           calypso.lara@gmail.com
+54      G6S114       Nicholas       al-Assaf      nicholas.al-assaf@gmail.com
+55      L4F17I          Dylan      Verhaeghe        dylan.verhaeghe@gmail.com
+56      SO7IRF            Sad        Kennedy            sad.kennedy@gmail.com
+57      5INIIJ          Kevin           Ruiz             kevin.ruiz@gmail.com
+58      VFU1CC          Aaron       el-Salim         aaron.el-salim@gmail.com
+59      877WSS       Makenzie           Oros          makenzie.oros@gmail.com
+60      CGBB8D         Connor       el-Malik        connor.el-malik@gmail.com
+61      FLNG2K         Collin           Knox            collin.knox@gmail.com
+62      EAKLHO        Brandon           Reed           brandon.reed@gmail.com
+63      YGC3SQ          Caleb      Fernandes        caleb.fernandes@gmail.com
+64      YRSXZC           Leah       el-Hasen          leah.el-hasen@gmail.com
+65      5J0AH3        Taamira       Thompson       taamira.thompson@gmail.com
+66      5BDZUM         Aubrey            Kee             aubrey.kee@gmail.com
+67      DXUVD1          Jacob      Neighbors        jacob.neighbors@gmail.com
+68      1EO780          Bunga           Odom             bunga.odom@gmail.com
+69      WDHLIF       Maxfield   Perez Crespo  maxfield.perez crespo@gmail.com
+70      BNG5W1    Christopher      Armstrong  christopher.armstrong@gmail.com
+71      34AYOX          Kevin       Williams         kevin.williams@gmail.com
+72      K80Z2M         Angela      Hernandez       angela.hernandez@gmail.com
+73      CU4P89         Denesh   Amphonephong    denesh.amphonephong@gmail.com
+74      KJSRXV        Bronson     Villagrana     bronson.villagrana@gmail.com
+75      0J6LUU         Husain         Garcia          husain.garcia@gmail.com
+76      HMUNDA      Fat'hiyaa     Kaibetoney   fat'hiyaa.kaibetoney@gmail.com
+77      U7RIFC         Ty'Lia   Saracay Pena    ty'lia.saracay pena@gmail.com
+78      0DO1V1           Sage           Link              sage.link@gmail.com
+79      1BC2X6         Jaabir       Martinez        jaabir.martinez@gmail.com
+80      JGQA7A       Yordanos             Vu            yordanos.vu@gmail.com
+81      BSTSP0          Jesse          Somer            jesse.somer@gmail.com
+82      RK0T0N        Raaniya          Smith          raaniya.smith@gmail.com
+83      Y6EFV2          Tuyen        Hauptli          tuyen.hauptli@gmail.com
+84      HAGM53        Vanisha         Bodell         vanisha.bodell@gmail.com
+85      MD505S        Tareefa       al-Javed       tareefa.al-javed@gmail.com
+   SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+1         F         4 1990-10-22    35
+2         F         0 2003-01-27    23
+3         M         3 1998-10-20    27
+4         M         2 2006-11-03    19
+5         M         1 2004-08-09    21
+6         F         1 1983-06-25    42
+7         M         4 2001-08-05    24
+8         M         0 1978-09-03    47
+9         M         3 1996-04-06    30
+10        F         1 2001-04-22    24
+11        F         0 2000-11-05    25
+12        F         0 1968-09-06    57
+13        M         0 2005-04-26    20
+14        M         0 2004-03-06    22
+15        F         2 2006-08-07    19
+16        M         2 2001-06-06    24
+17        M         0 1972-04-16    53
+18        M         0 1971-09-22    54
+19        M         3 2006-10-04    19
+20        F         1 1980-10-13    45
+21        F         0 1995-10-27    30
+22        F         1 1996-12-12    29
+23        M         1 2004-04-18    21
+24        F         0 1987-09-12    38
+25        M         1 1971-02-24    55
+26        M         2 1994-04-11    32
+27        F         0 1967-06-09    58
+28        M         1 1985-06-08    40
+29        F         1 2004-05-18    21
+30        F         2 1996-06-30    29
+31        F         0 1995-12-25    30
+32        M         1 1990-12-25    35
+33        M         2 1979-10-26    46
+34        F         0 1999-04-14    27
+35        F         0 2000-08-11    25
+36        F         2 1985-02-27    41
+37        F         1 2003-04-08    23
+38        F         4 1983-08-10    42
+39        M         1 1991-04-02    35
+40        M         0 1997-02-07    29
+41        M         2 2002-05-19    23
+42        F         2 1999-05-15    26
+43        M         1 1981-03-25    45
+44        M         2 1999-03-16    27
+45        F         3 1976-06-23    49
+46        F         0 2003-03-05    23
+47        M         2 1984-01-07    42
+48        F         2 1982-02-03    44
+49        M         1 1990-10-20    35
+50        F         2 1979-09-04    46
+51        M         0 2006-05-21    19
+52        F         2 1977-08-25    48
+53        F         3 1989-09-18    36
+54        M         0 1990-08-18    35
+55        M         2 1997-05-01    28
+56        M         1 1983-09-28    42
+57        M         0 1999-10-07    26
+58        M         0 2003-09-24    22
+59        F         0 1969-08-24    56
+60        M         5 1969-05-17    56
+61        M         2 1991-01-10    35
+62        M         3 2001-02-19    25
+63        M         0 1969-11-12    56
+64        F         2 1970-12-21    55
+65        F         1 1969-08-04    56
+66        F         3 2001-07-11    24
+67        M         2 1990-08-01    35
+68        F         1 1983-12-14    42
+69        M         0 2000-05-05    25
+70        M         2 1999-05-12    26
+71        M         1 1994-12-31    31
+72        F         4 1985-02-07    41
+73        M         2 1982-07-01    43
+74        M         0 2003-04-19    22
+75        M         5 2006-11-04    19
+76        F         3 1996-10-25    29
+77        F         1 1997-02-20    29
+78        M         1 1967-01-17    59
+79        M         5 2004-03-20    22
+80        F         2 2004-02-17    22
+81        M         0 1967-04-08    59
+82        F         1 2006-02-23    20
+83        F         0 1989-05-08    36
+84        F         1 1977-06-03    48
+85        F         1 2002-12-08    23</code></pre>
+</div>
+</div>
+<p>Notaram a diferença entre as abordagens?</p>
+<hr>
+<p><strong>EXERCÍCIO 09</strong></p>
+<p>Proponha uma rotina que <strong>FILTRE</strong> todas as observações da tabela <strong>VENDAS</strong> referentes a:</p>
+<ol type="1">
+<li>produtos vendidos no ano de 2022;</li>
+<li>com utilização de cartão de crédito.</li>
+</ol>
+<hr>
+<p>Também podemos filtrar observações com valores textuais! Por exemplo, como poderíamos fazer para filtrar as observações cujo sobrenome fosse <code>MCGUIRE</code>?</p>
+<p>Será que a rotina a seguir funcionará?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE SOBRENOME = 'MCGUIRE'"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  COD_CLIENTE PRIMEIRO_NOME SOBRENOME                   EMAIL SEXO_BIO
+1      HDU5LD         Vanya   Mcguire vanya.mcguire@gmail.com        F
+  QT_FILHOS NASCIMENTO IDADE
+1         0 2003-03-05    23</code></pre>
+</div>
+</div>
+<p>Sim, funciona!</p>
+<p>Uma hipótese comum seria pensar que, ao trabalharmos com valores textuais, a linguagem SQL diferencia letras maiúsculas e minúsculas (<em>case sensitive</em>). No entanto, em bancos como MySQL/MariaDB, isso geralmente não ocorre, pois as comparações textuais costumam ser <em>case insensitive</em>. Assim, <code>MCGUIRE</code> e <code>Mcguire</code> tendem a ser tratados como equivalentes.</p>
+<p>E se quiséssemos filtrar os personagens da base de dados cujo primeiro nome fosse iniciado pela letra L?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE PRIMEIRO_NOME LIKE 'L%'"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  COD_CLIENTE PRIMEIRO_NOME SOBRENOME                   EMAIL SEXO_BIO
+1      G0I1JN          Luis     Moote    luis.moote@gmail.com        M
+2      YRSXZC          Leah  el-Hasen leah.el-hasen@gmail.com        F
+  QT_FILHOS NASCIMENTO IDADE
+1         2 1955-10-10    70
+2         2 1970-12-21    55</code></pre>
+</div>
+</div>
+<p>Entenderam a declaração? O símbolo <code>%</code> representa qualquer sequência de caracteres, ou seja, <code>L%</code> indica os nomes que começam com a letra L.</p>
+<p>Vamos treinar mais uma vez! Suponhamos que desejemos estabelecer um filtro em que possamos visualizar os indivíduos cujo primeiro nome se <strong>encerre</strong> com a letra A:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE PRIMEIRO_NOME LIKE '%A'"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME      SOBRENOME                            EMAIL
+1       0S9ECF        Sandra       al-Ahmad        sandra.al-ahmad@gmail.com
+2       PBDD0Y       Saahira       Griffith       saahira.griffith@gmail.com
+3       40XCGF       Raheema         Garcia         raheema.garcia@gmail.com
+4       RECSQA          Alea      al-Rehman         alea.al-rehman@gmail.com
+5       IXP3J4       Sultana       Williams       sultana.williams@gmail.com
+6       4RCGEJ       Dalicia           Alex           dalicia.alex@gmail.com
+7       4SS5NK       Shadhaa Ramirez Arenas shadhaa.ramirez arenas@gmail.com
+8       RSMZRA         Yusra          Horst            yusra.horst@gmail.com
+9       Q7ZELB        Olivia        Makaiwi         olivia.makaiwi@gmail.com
+10      BGBUHS      Tahleela     el-Shareef    tahleela.el-shareef@gmail.com
+11      LS1A9Q        Mariya       el-Amini        mariya.el-amini@gmail.com
+12      0QABKK         Janea          Allen            janea.allen@gmail.com
+13      0X4OVU     Joylensia         Harris       joylensia.harris@gmail.com
+14      T3N7EJ      Wajdiyya         Yancey        wajdiyya.yancey@gmail.com
+15      JE1JG2      Julianna        Wallace       julianna.wallace@gmail.com
+16      IEXADH        Dakota   Tsinnijinnie    dakota.tsinnijinnie@gmail.com
+17      HA6IEW       Jaleela         Ambriz         jaleela.ambriz@gmail.com
+18      HDU5LD         Vanya        Mcguire          vanya.mcguire@gmail.com
+19      4H888J      Cristina        Younger       cristina.younger@gmail.com
+20      CK9HZO        Rashaa       Gallegos        rashaa.gallegos@gmail.com
+21      EJ1MX0        Teresa         Foster          teresa.foster@gmail.com
+22      YDBJ9U         Warda        Montoya          warda.montoya@gmail.com
+23      Q7W410     Mujaahida         Schlom       mujaahida.schlom@gmail.com
+24      5J0AH3       Taamira       Thompson       taamira.thompson@gmail.com
+25      1EO780         Bunga           Odom             bunga.odom@gmail.com
+26      K80Z2M        Angela      Hernandez       angela.hernandez@gmail.com
+27      HMUNDA     Fat'hiyaa     Kaibetoney   fat'hiyaa.kaibetoney@gmail.com
+28      U7RIFC        Ty'Lia   Saracay Pena    ty'lia.saracay pena@gmail.com
+29      RK0T0N       Raaniya          Smith          raaniya.smith@gmail.com
+30      HAGM53       Vanisha         Bodell         vanisha.bodell@gmail.com
+31      MD505S       Tareefa       al-Javed       tareefa.al-javed@gmail.com
+   SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+1         F         4 1990-10-22    35
+2         F         0 2003-01-27    23
+3         F         3 1949-04-30    76
+4         F         1 2001-04-22    24
+5         F         0 1968-09-06    57
+6         F         2 2006-08-07    19
+7         F         1 1980-10-13    45
+8         F         2 1962-09-04    63
+9         F         0 1967-06-09    58
+10        F         1 2004-05-18    21
+11        F         2 1996-06-30    29
+12        F         0 1999-04-14    27
+13        F         2 1985-02-27    41
+14        F         1 2003-04-08    23
+15        F         4 1983-08-10    42
+16        M         0 1997-02-07    29
+17        F         2 1999-05-15    26
+18        F         0 2003-03-05    23
+19        F         2 1982-02-03    44
+20        F         2 1979-09-04    46
+21        F         2 1977-08-25    48
+22        F         1 1952-11-23    73
+23        F         0 1965-01-17    61
+24        F         1 1969-08-04    56
+25        F         1 1983-12-14    42
+26        F         4 1985-02-07    41
+27        F         3 1996-10-25    29
+28        F         1 1997-02-20    29
+29        F         1 2006-02-23    20
+30        F         1 1977-06-03    48
+31        F         1 2002-12-08    23</code></pre>
+</div>
+</div>
+<p>Notaram a mudança de posição do operador <code>%</code>?</p>
+<hr>
+<p><strong>EXERCÍCIO 10</strong></p>
+<p>Estabeleça uma rotina em que haja o filtro de clientes que possuam a letra S em seu primeiro nome, independentemente de sua posição, isto é, a letra S também deve ser considerada no meio dos primeiros nomes.</p>
+<hr>
+<p>E caso quiséssemos filtrar as vendas ocorridas nas filiais de <strong>Ribeirão Preto</strong> e de <strong>Campinas</strong>, apenas?</p>
+<p>Provavelmente, você pensou na seguinte rotina:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="st">                *</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="st">             FROM VENDAS</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE LOJA = 'Ribeirão Preto' OR LOJA = 'Campinas'"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           SKU        DIA           LOJA CLIENTE QUANTIDADE         PAGAMENTO
+1   RXH1G0VSLC 2023-05-09       Campinas  2ZBU1S          1  Cartão de Débito
+2   RXH1G0VSLC 2022-02-24       Campinas  HA6IEW          3          Dinheiro
+3   QNAC07NM3B 2023-04-16       Campinas  0QABKK          2          Dinheiro
+4   DEMZ0LJP52 2022-10-12 Ribeirão Preto  HMUNDA          1          Dinheiro
+5   RV0HI86POR 2022-04-16       Campinas  EAKLHO          3 Cartão de Crédito
+6   TQ37P5A0LI 2023-03-02 Ribeirão Preto  34AYOX          3            Boleto
+7   WA7PBIRVO9 2022-01-05       Campinas  MYIJ0I          1          Dinheiro
+8   90GEXBU0Y8 2022-05-12       Campinas  61LJ3M          1 Cartão de Crédito
+9   J7ODOJPU83 2022-09-25       Campinas  0QABKK          2 Cartão de Crédito
+10  UI55UMOKAP 2022-05-08 Ribeirão Preto  RK0T0N          2            Boleto
+11  TM76F58KL8 2022-10-21       Campinas  0X4OVU          2 Cartão de Crédito
+12  07CFXBJT0P 2023-02-20       Campinas  76SB4S          2  Cartão de Débito
+13  H5ZVPFN6XB 2022-08-07       Campinas  MD505S          2          Dinheiro
+14  RXH1G0VSLC 2022-04-29 Ribeirão Preto  RECSQA          1  Cartão de Débito
+15  RXH1G0VSLC 2022-07-26 Ribeirão Preto  61LJ3M          3            Boleto
+16  KG19TO2CSV 2022-12-27 Ribeirão Preto  G6S114          3          Dinheiro
+17  KWCH1UCD67 2022-01-09 Ribeirão Preto  4RCGEJ          2            Boleto
+18  WW9YWSBC33 2022-10-21       Campinas  BGBUHS          3          Dinheiro
+19  DEMZ0LJP52 2022-07-21       Campinas  9D1M4R          1 Cartão de Crédito
+20  90GEXBU0Y8 2022-09-03 Ribeirão Preto  RSMZRA          1          Dinheiro
+21  TQ37P5A0LI 2023-01-22 Ribeirão Preto  GEY8UY          3            Boleto
+22  NWKTRU8JHK 2022-02-08       Campinas  ZULPBL          2            Boleto
+23  WA7PBIRVO9 2023-02-15       Campinas  L85YED          3            Boleto
+24  KG19TO2CSV 2023-02-09 Ribeirão Preto  PTF6UZ          2 Cartão de Crédito
+25  90GEXBU0Y8 2022-08-14 Ribeirão Preto  8V6UK4          1          Dinheiro
+26  QNAC07NM3B 2023-03-15       Campinas  1BC2X6          2          Dinheiro
+27  WW9YWSBC33 2022-05-05 Ribeirão Preto  61LJ3M          1            Boleto
+28  MDH3I0V22N 2023-01-04 Ribeirão Preto  RSMZRA          1  Cartão de Débito
+29  07CFXBJT0P 2022-04-06 Ribeirão Preto  JGQA7A          3 Cartão de Crédito
+30  UI55UMOKAP 2023-01-20 Ribeirão Preto  XHUUHD          3          Dinheiro
+31  RXH1G0VSLC 2022-08-15 Ribeirão Preto  Q7W410          2  Cartão de Débito
+32  NWKTRU8JHK 2022-12-04 Ribeirão Preto  CU4P89          1  Cartão de Débito
+33  90GEXBU0Y8 2022-05-19 Ribeirão Preto  4RCGEJ          1            Boleto
+34  UI55UMOKAP 2022-10-08       Campinas  30LKMS          1  Cartão de Débito
+35  PBUOA7PZY1 2022-07-29       Campinas  LS1A9Q          1 Cartão de Crédito
+36  8CCUXCSCW7 2022-11-27       Campinas  CWZG6I          2  Cartão de Débito
+37  KWCH1UCD67 2022-05-11 Ribeirão Preto  MYIJ0I          2 Cartão de Crédito
+38  T83Q5YAHVA 2022-08-20 Ribeirão Preto  9GGAWK          3  Cartão de Débito
+39  UI55UMOKAP 2022-10-20 Ribeirão Preto  EA1BC1          2            Boleto
+40  RV0HI86POR 2022-07-24       Campinas  R79IU9          1          Dinheiro
+41  APQZYQFXQ9 2022-11-06 Ribeirão Preto  FLNG2K          3            Boleto
+42  TM76F58KL8 2022-09-22 Ribeirão Preto  PBDD0Y          1            Boleto
+43  UI55UMOKAP 2022-03-19 Ribeirão Preto  0X4OVU          3            Boleto
+44  WW9YWSBC33 2022-12-18       Campinas  JE1JG2          2  Cartão de Débito
+45  DGSXFUOIUR 2022-03-27 Ribeirão Preto  IXP3J4          2 Cartão de Crédito
+46  DGSXFUOIUR 2022-09-17       Campinas  K80Z2M          2  Cartão de Débito
+47  APQZYQFXQ9 2023-02-14 Ribeirão Preto  4Y0XTG          1 Cartão de Crédito
+48  MDH3I0V22N 2023-03-09       Campinas  OOLHRF          1          Dinheiro
+49  90GEXBU0Y8 2023-01-21 Ribeirão Preto  PBDD0Y          2 Cartão de Crédito
+50  KG19TO2CSV 2022-09-20       Campinas  SO7IRF          1  Cartão de Débito
+51  PBUOA7PZY1 2023-01-25       Campinas  76SB4S          3  Cartão de Débito
+52  IO6JAO00QX 2022-07-24       Campinas  BSTSP0          2 Cartão de Crédito
+53  G73AAFR45N 2022-01-15       Campinas  Y6EFV2          2            Boleto
+54  WA7PBIRVO9 2023-04-03       Campinas  0X4OVU          1 Cartão de Crédito
+55  TM76F58KL8 2022-01-05 Ribeirão Preto  0S9ECF          3          Dinheiro
+56  KG19TO2CSV 2023-03-15 Ribeirão Preto  P9ISZ1          1 Cartão de Crédito
+57  IO6JAO00QX 2022-06-14       Campinas  3KNAA4          2 Cartão de Crédito
+58  MDH3I0V22N 2022-05-31 Ribeirão Preto  2AOPIX          2 Cartão de Crédito
+59  APQZYQFXQ9 2022-02-06 Ribeirão Preto  YDBJ9U          3          Dinheiro
+60  Q1SNKW09TC 2023-03-22       Campinas  YSU3QR          1 Cartão de Crédito
+61  DGSXFUOIUR 2023-01-21 Ribeirão Preto  2AOPIX          2  Cartão de Débito
+62  MDH3I0V22N 2022-11-12       Campinas  RSMZRA          1 Cartão de Crédito
+63  KG19TO2CSV 2023-01-29       Campinas  Y6EFV2          2  Cartão de Débito
+64  Q1SNKW09TC 2022-01-09 Ribeirão Preto  YSU3QR          2            Boleto
+65  DGSXFUOIUR 2022-11-05 Ribeirão Preto  BSTSP0          3 Cartão de Crédito
+66  KG19TO2CSV 2022-06-22       Campinas  CAFJ2Z          1 Cartão de Crédito
+67  KWCH1UCD67 2022-05-08 Ribeirão Preto  61LJ3M          3 Cartão de Crédito
+68  8CCUXCSCW7 2022-05-28 Ribeirão Preto  2AOPIX          3 Cartão de Crédito
+69  KWCH1UCD67 2022-12-13 Ribeirão Preto  WDHLIF          1          Dinheiro
+70  G73AAFR45N 2023-01-24 Ribeirão Preto  KJSRXV          3          Dinheiro
+71  9HVZH2Z6JI 2022-02-20 Ribeirão Preto  5BDZUM          1 Cartão de Crédito
+72  J7ODOJPU83 2022-11-27       Campinas  JCVNC9          1          Dinheiro
+73  RXH1G0VSLC 2022-08-04       Campinas  1BC2X6          2 Cartão de Crédito
+74  WA7PBIRVO9 2022-09-11       Campinas  9D1M4R          3            Boleto
+75  Q1SNKW09TC 2022-11-22       Campinas  BSTSP0          2          Dinheiro
+76  WA7PBIRVO9 2022-03-20 Ribeirão Preto  KJSRXV          1          Dinheiro
+77  EX966OLIZF 2022-03-13       Campinas  YGC3SQ          2 Cartão de Crédito
+78  TQ37P5A0LI 2022-10-01       Campinas  SO7IRF          2  Cartão de Débito
+79  RXH1G0VSLC 2023-01-16 Ribeirão Preto  EA1BC1          3 Cartão de Crédito
+80  MDH3I0V22N 2022-02-21 Ribeirão Preto  9D1M4R          2 Cartão de Crédito
+81  RV0HI86POR 2022-02-10 Ribeirão Preto  EMH7C2          1 Cartão de Crédito
+82  Q1SNKW09TC 2022-03-05 Ribeirão Preto  XHUUHD          2 Cartão de Crédito
+83  EX966OLIZF 2022-07-02 Ribeirão Preto  VFU1CC          2          Dinheiro
+84  H5ZVPFN6XB 2022-02-09       Campinas  TLL2Z9          1  Cartão de Débito
+85  UX31LUNUEI 2022-09-16       Campinas  PBDD0Y          1          Dinheiro
+86  H5ZVPFN6XB 2022-11-12       Campinas  1BC2X6          3 Cartão de Crédito
+87  Q1SNKW09TC 2022-07-01       Campinas  8V6UK4          2  Cartão de Débito
+88  90GEXBU0Y8 2022-12-04       Campinas  AVONH2          2          Dinheiro
+89  T38CRZTFYB 2023-02-09       Campinas  MD505S          2  Cartão de Débito
+90  T38CRZTFYB 2022-11-05 Ribeirão Preto  PBDD0Y          2          Dinheiro
+91  WW9YWSBC33 2022-01-28 Ribeirão Preto  9D1M4R          2          Dinheiro
+92  RXH1G0VSLC 2023-03-20 Ribeirão Preto  4RCGEJ          1          Dinheiro
+93  KG19TO2CSV 2023-04-22 Ribeirão Preto  61LJ3M          2 Cartão de Crédito
+94  07CFXBJT0P 2022-09-18 Ribeirão Preto  2AOPIX          1          Dinheiro
+95  EX966OLIZF 2023-05-10 Ribeirão Preto  40XCGF          2 Cartão de Crédito
+96  90GEXBU0Y8 2023-02-24 Ribeirão Preto  IEXADH          3            Boleto
+97  9HVZH2Z6JI 2023-04-13       Campinas  ZZOF4T          2 Cartão de Crédito
+98  QNAC07NM3B 2022-09-12 Ribeirão Preto  EA1BC1          3  Cartão de Débito
+99  PBUOA7PZY1 2022-04-10       Campinas  2ZBU1S          2 Cartão de Crédito
+100 DGSXFUOIUR 2023-01-11       Campinas  AVONH2          2            Boleto
+101 KWCH1UCD67 2022-07-02       Campinas  B4PXL2          2  Cartão de Débito
+102 APQZYQFXQ9 2023-01-06       Campinas  0S9ECF          3            Boleto
+103 S8J44EUTO2 2022-09-09       Campinas  61LJ3M          1          Dinheiro
+104 PBUOA7PZY1 2022-08-14 Ribeirão Preto  YRSXZC          1  Cartão de Débito
+105 S8J44EUTO2 2023-02-27       Campinas  61LJ3M          3  Cartão de Débito
+106 DEMZ0LJP52 2022-09-05       Campinas  SO7IRF          1 Cartão de Crédito
+107 DEMZ0LJP52 2022-12-12 Ribeirão Preto  VQUNFJ          1 Cartão de Crédito
+108 MDH3I0V22N 2022-06-07 Ribeirão Preto  30LKMS          3  Cartão de Débito
+109 TM76F58KL8 2023-03-15       Campinas  SO7IRF          2 Cartão de Crédito
+110 WA7PBIRVO9 2022-08-27       Campinas  Q7ZELB          1  Cartão de Débito
+111 NWKTRU8JHK 2022-12-30       Campinas  JGQA7A          2 Cartão de Crédito
+112 9HVZH2Z6JI 2023-03-30 Ribeirão Preto  877WSS          1 Cartão de Crédito
+113 9HVZH2Z6JI 2023-01-18       Campinas  8J69DK          1          Dinheiro
+114 UI55UMOKAP 2023-04-25       Campinas  AVONH2          2 Cartão de Crédito
+115 9HVZH2Z6JI 2022-07-21 Ribeirão Preto  Q7W410          1          Dinheiro
+116 DEMZ0LJP52 2023-01-24 Ribeirão Preto  EA1BC1          3 Cartão de Crédito
+117 H5ZVPFN6XB 2022-10-09 Ribeirão Preto  X77KNT          1 Cartão de Crédito
+118 RXH1G0VSLC 2022-11-07       Campinas  YRSXZC          3  Cartão de Débito
+119 RXH1G0VSLC 2023-03-29       Campinas  WB1DTE          3 Cartão de Crédito
+120 9HVZH2Z6JI 2022-09-04 Ribeirão Preto  3KNAA4          2            Boleto
+121 WA7PBIRVO9 2022-12-30 Ribeirão Preto  OOLHRF          2  Cartão de Débito
+122 9HVZH2Z6JI 2022-06-27       Campinas  BNG5W1          1          Dinheiro
+123 TQ37P5A0LI 2022-11-14 Ribeirão Preto  YRSXZC          2 Cartão de Crédito
+124 J7ODOJPU83 2023-01-25 Ribeirão Preto  JE1JG2          3          Dinheiro
+125 H5ZVPFN6XB 2022-09-17 Ribeirão Preto  OOLHRF          3            Boleto
+126 KG19TO2CSV 2022-09-18       Campinas  045O5V          1 Cartão de Crédito
+127 TM76F58KL8 2022-03-19 Ribeirão Preto  MD505S          3 Cartão de Crédito
+128 G73AAFR45N 2023-03-08 Ribeirão Preto  Q7W410          3          Dinheiro
+129 UI55UMOKAP 2022-03-15 Ribeirão Preto  2ZBU1S          2 Cartão de Crédito
+130 TQ37P5A0LI 2023-03-16       Campinas  CWZG6I          2          Dinheiro
+131 MDH3I0V22N 2022-05-03       Campinas  YSU3QR          3            Boleto
+132 NWKTRU8JHK 2023-01-04 Ribeirão Preto  5J0AH3          2  Cartão de Débito
+133 8CCUXCSCW7 2023-01-19 Ribeirão Preto  33MTK1          3  Cartão de Débito
+134 T83Q5YAHVA 2023-01-16 Ribeirão Preto  JCVNC9          1            Boleto
+135 UI55UMOKAP 2022-06-20 Ribeirão Preto  HAGM53          1  Cartão de Débito
+136 UX31LUNUEI 2023-05-13       Campinas  B4PXL2          2          Dinheiro
+137 9HVZH2Z6JI 2022-11-20 Ribeirão Preto  EJ1MX0          3            Boleto
+138 KG19TO2CSV 2022-08-01 Ribeirão Preto  VFU1CC          3 Cartão de Crédito
+139 UX31LUNUEI 2023-01-15 Ribeirão Preto  YSU3QR          1  Cartão de Débito
+140 TQ37P5A0LI 2022-06-19 Ribeirão Preto  VFU1CC          1            Boleto
+141 WA7PBIRVO9 2022-04-08 Ribeirão Preto  ZZOF4T          3 Cartão de Crédito
+142 KWCH1UCD67 2022-07-01       Campinas  76SB4S          3            Boleto
+143 IO6JAO00QX 2022-09-27 Ribeirão Preto  IEXADH          3            Boleto
+144 WW9YWSBC33 2022-09-13 Ribeirão Preto  YDBJ9U          3 Cartão de Crédito
+145 DEMZ0LJP52 2023-03-15 Ribeirão Preto  YDBJ9U          1            Boleto
+146 G73AAFR45N 2022-11-30 Ribeirão Preto  TLL2Z9          2            Boleto
+147 9HVZH2Z6JI 2023-05-04       Campinas  34AYOX          1            Boleto
+148 KWCH1UCD67 2022-11-20 Ribeirão Preto  VFU1CC          1 Cartão de Crédito
+149 RXH1G0VSLC 2023-05-08 Ribeirão Preto  BNG5W1          2  Cartão de Débito
+150 G73AAFR45N 2022-09-20       Campinas  PTF6UZ          3 Cartão de Crédito
+151 NWKTRU8JHK 2023-05-23       Campinas  JGQA7A          1  Cartão de Débito
+152 RXH1G0VSLC 2022-06-27       Campinas  G6S114          3 Cartão de Crédito
+153 T83Q5YAHVA 2022-02-21 Ribeirão Preto  L4F17I          2 Cartão de Crédito
+154 KWCH1UCD67 2022-06-29       Campinas  K80Z2M          3            Boleto
+155 IO6JAO00QX 2022-08-19       Campinas  JCVNC9          3            Boleto
+156 S8J44EUTO2 2022-06-29 Ribeirão Preto  0J6LUU          1 Cartão de Crédito
+157 QNAC07NM3B 2022-08-04       Campinas  EAKLHO          2 Cartão de Crédito
+158 KWCH1UCD67 2023-03-26 Ribeirão Preto  30LKMS          3            Boleto
+159 H5ZVPFN6XB 2022-02-19 Ribeirão Preto  1EO780          3            Boleto
+160 G73AAFR45N 2022-01-23 Ribeirão Preto  VFU1CC          1          Dinheiro
+161 Q1SNKW09TC 2022-07-26       Campinas  T3N7EJ          1          Dinheiro
+162 Q1SNKW09TC 2022-03-30 Ribeirão Preto  JCVNC9          2  Cartão de Débito
+163 UX31LUNUEI 2022-04-16       Campinas  CGBB8D          2          Dinheiro
+164 90GEXBU0Y8 2023-05-16       Campinas  K80Z2M          2          Dinheiro
+165 UI55UMOKAP 2022-04-15       Campinas  XHUUHD          1            Boleto
+166 WW9YWSBC33 2022-12-01 Ribeirão Preto  P9ISZ1          1            Boleto
+167 J7ODOJPU83 2023-02-06       Campinas  FLNG2K          3          Dinheiro
+168 EX966OLIZF 2022-11-20 Ribeirão Preto  EA1BC1          2          Dinheiro
+169 DGSXFUOIUR 2022-06-01 Ribeirão Preto  0GUW80          2  Cartão de Débito
+170 WW9YWSBC33 2023-05-18 Ribeirão Preto  WB1DTE          2          Dinheiro
+171 PBUOA7PZY1 2023-05-15       Campinas  Q7ZELB          1          Dinheiro
+172 G73AAFR45N 2022-03-24 Ribeirão Preto  33MTK1          1            Boleto
+173 WW9YWSBC33 2022-11-19 Ribeirão Preto  BNG5W1          3          Dinheiro
+174 H5ZVPFN6XB 2022-01-17       Campinas  Q7ZELB          1          Dinheiro
+175 NWKTRU8JHK 2023-04-19       Campinas  Q7W410          2            Boleto
+176 WW9YWSBC33 2022-09-18       Campinas  33MTK1          3            Boleto
+177 EX966OLIZF 2023-04-14       Campinas  RSMZRA          2          Dinheiro
+178 DGSXFUOIUR 2022-05-31       Campinas  045O5V          3 Cartão de Crédito
+179 PBUOA7PZY1 2023-04-10       Campinas  VFU1CC          2 Cartão de Crédito
+180 MDH3I0V22N 2022-07-15 Ribeirão Preto  JCVNC9          2  Cartão de Débito
+181 8CCUXCSCW7 2022-10-12       Campinas  HAGM53          2  Cartão de Débito
+182 TQ37P5A0LI 2022-06-10 Ribeirão Preto  30LKMS          3 Cartão de Crédito
+183 UI55UMOKAP 2022-05-09       Campinas  5INIIJ          2            Boleto
+184 WA7PBIRVO9 2022-07-18 Ribeirão Preto  4SS5NK          1          Dinheiro
+185 PBUOA7PZY1 2022-11-18       Campinas  XII0EF          3  Cartão de Débito
+186 EX966OLIZF 2022-04-13       Campinas  RK0T0N          2  Cartão de Débito
+187 WW9YWSBC33 2022-12-08 Ribeirão Preto  4SS5NK          2            Boleto
+188 KWCH1UCD67 2023-04-20       Campinas  ZZOF4T          2  Cartão de Débito
+189 UI55UMOKAP 2022-05-07       Campinas  0S9ECF          1 Cartão de Crédito
+190 NWKTRU8JHK 2022-08-26 Ribeirão Preto  YRSXZC          1          Dinheiro
+191 RV0HI86POR 2022-05-12       Campinas  P9ISZ1          1 Cartão de Crédito
+192 9HVZH2Z6JI 2023-04-20       Campinas  32N7IU          2  Cartão de Débito
+193 S8J44EUTO2 2022-07-13       Campinas  LS1A9Q          2            Boleto
+194 KG19TO2CSV 2022-02-13       Campinas  30LKMS          3 Cartão de Crédito
+195 TQ37P5A0LI 2022-04-29       Campinas  YSU3QR          3 Cartão de Crédito
+196 90GEXBU0Y8 2022-11-29 Ribeirão Preto  9D1M4R          1  Cartão de Débito
+197 T83Q5YAHVA 2023-03-06       Campinas  U7RIFC          2 Cartão de Crédito</code></pre>
+</div>
+</div>
+<p>Os comandos anteriores estão corretos, mas há uma maneira mais direta de se fazer a tarefa proposta:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="st">                *</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="st">             FROM VENDAS</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE LOJA IN ('Ribeirão Preto', 'Campinas')"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           SKU        DIA           LOJA CLIENTE QUANTIDADE         PAGAMENTO
+1   RXH1G0VSLC 2023-05-09       Campinas  2ZBU1S          1  Cartão de Débito
+2   RXH1G0VSLC 2022-02-24       Campinas  HA6IEW          3          Dinheiro
+3   QNAC07NM3B 2023-04-16       Campinas  0QABKK          2          Dinheiro
+4   DEMZ0LJP52 2022-10-12 Ribeirão Preto  HMUNDA          1          Dinheiro
+5   RV0HI86POR 2022-04-16       Campinas  EAKLHO          3 Cartão de Crédito
+6   TQ37P5A0LI 2023-03-02 Ribeirão Preto  34AYOX          3            Boleto
+7   WA7PBIRVO9 2022-01-05       Campinas  MYIJ0I          1          Dinheiro
+8   90GEXBU0Y8 2022-05-12       Campinas  61LJ3M          1 Cartão de Crédito
+9   J7ODOJPU83 2022-09-25       Campinas  0QABKK          2 Cartão de Crédito
+10  UI55UMOKAP 2022-05-08 Ribeirão Preto  RK0T0N          2            Boleto
+11  TM76F58KL8 2022-10-21       Campinas  0X4OVU          2 Cartão de Crédito
+12  07CFXBJT0P 2023-02-20       Campinas  76SB4S          2  Cartão de Débito
+13  H5ZVPFN6XB 2022-08-07       Campinas  MD505S          2          Dinheiro
+14  RXH1G0VSLC 2022-04-29 Ribeirão Preto  RECSQA          1  Cartão de Débito
+15  RXH1G0VSLC 2022-07-26 Ribeirão Preto  61LJ3M          3            Boleto
+16  KG19TO2CSV 2022-12-27 Ribeirão Preto  G6S114          3          Dinheiro
+17  KWCH1UCD67 2022-01-09 Ribeirão Preto  4RCGEJ          2            Boleto
+18  WW9YWSBC33 2022-10-21       Campinas  BGBUHS          3          Dinheiro
+19  DEMZ0LJP52 2022-07-21       Campinas  9D1M4R          1 Cartão de Crédito
+20  90GEXBU0Y8 2022-09-03 Ribeirão Preto  RSMZRA          1          Dinheiro
+21  TQ37P5A0LI 2023-01-22 Ribeirão Preto  GEY8UY          3            Boleto
+22  NWKTRU8JHK 2022-02-08       Campinas  ZULPBL          2            Boleto
+23  WA7PBIRVO9 2023-02-15       Campinas  L85YED          3            Boleto
+24  KG19TO2CSV 2023-02-09 Ribeirão Preto  PTF6UZ          2 Cartão de Crédito
+25  90GEXBU0Y8 2022-08-14 Ribeirão Preto  8V6UK4          1          Dinheiro
+26  QNAC07NM3B 2023-03-15       Campinas  1BC2X6          2          Dinheiro
+27  WW9YWSBC33 2022-05-05 Ribeirão Preto  61LJ3M          1            Boleto
+28  MDH3I0V22N 2023-01-04 Ribeirão Preto  RSMZRA          1  Cartão de Débito
+29  07CFXBJT0P 2022-04-06 Ribeirão Preto  JGQA7A          3 Cartão de Crédito
+30  UI55UMOKAP 2023-01-20 Ribeirão Preto  XHUUHD          3          Dinheiro
+31  RXH1G0VSLC 2022-08-15 Ribeirão Preto  Q7W410          2  Cartão de Débito
+32  NWKTRU8JHK 2022-12-04 Ribeirão Preto  CU4P89          1  Cartão de Débito
+33  90GEXBU0Y8 2022-05-19 Ribeirão Preto  4RCGEJ          1            Boleto
+34  UI55UMOKAP 2022-10-08       Campinas  30LKMS          1  Cartão de Débito
+35  PBUOA7PZY1 2022-07-29       Campinas  LS1A9Q          1 Cartão de Crédito
+36  8CCUXCSCW7 2022-11-27       Campinas  CWZG6I          2  Cartão de Débito
+37  KWCH1UCD67 2022-05-11 Ribeirão Preto  MYIJ0I          2 Cartão de Crédito
+38  T83Q5YAHVA 2022-08-20 Ribeirão Preto  9GGAWK          3  Cartão de Débito
+39  UI55UMOKAP 2022-10-20 Ribeirão Preto  EA1BC1          2            Boleto
+40  RV0HI86POR 2022-07-24       Campinas  R79IU9          1          Dinheiro
+41  APQZYQFXQ9 2022-11-06 Ribeirão Preto  FLNG2K          3            Boleto
+42  TM76F58KL8 2022-09-22 Ribeirão Preto  PBDD0Y          1            Boleto
+43  UI55UMOKAP 2022-03-19 Ribeirão Preto  0X4OVU          3            Boleto
+44  WW9YWSBC33 2022-12-18       Campinas  JE1JG2          2  Cartão de Débito
+45  DGSXFUOIUR 2022-03-27 Ribeirão Preto  IXP3J4          2 Cartão de Crédito
+46  DGSXFUOIUR 2022-09-17       Campinas  K80Z2M          2  Cartão de Débito
+47  APQZYQFXQ9 2023-02-14 Ribeirão Preto  4Y0XTG          1 Cartão de Crédito
+48  MDH3I0V22N 2023-03-09       Campinas  OOLHRF          1          Dinheiro
+49  90GEXBU0Y8 2023-01-21 Ribeirão Preto  PBDD0Y          2 Cartão de Crédito
+50  KG19TO2CSV 2022-09-20       Campinas  SO7IRF          1  Cartão de Débito
+51  PBUOA7PZY1 2023-01-25       Campinas  76SB4S          3  Cartão de Débito
+52  IO6JAO00QX 2022-07-24       Campinas  BSTSP0          2 Cartão de Crédito
+53  G73AAFR45N 2022-01-15       Campinas  Y6EFV2          2            Boleto
+54  WA7PBIRVO9 2023-04-03       Campinas  0X4OVU          1 Cartão de Crédito
+55  TM76F58KL8 2022-01-05 Ribeirão Preto  0S9ECF          3          Dinheiro
+56  KG19TO2CSV 2023-03-15 Ribeirão Preto  P9ISZ1          1 Cartão de Crédito
+57  IO6JAO00QX 2022-06-14       Campinas  3KNAA4          2 Cartão de Crédito
+58  MDH3I0V22N 2022-05-31 Ribeirão Preto  2AOPIX          2 Cartão de Crédito
+59  APQZYQFXQ9 2022-02-06 Ribeirão Preto  YDBJ9U          3          Dinheiro
+60  Q1SNKW09TC 2023-03-22       Campinas  YSU3QR          1 Cartão de Crédito
+61  DGSXFUOIUR 2023-01-21 Ribeirão Preto  2AOPIX          2  Cartão de Débito
+62  MDH3I0V22N 2022-11-12       Campinas  RSMZRA          1 Cartão de Crédito
+63  KG19TO2CSV 2023-01-29       Campinas  Y6EFV2          2  Cartão de Débito
+64  Q1SNKW09TC 2022-01-09 Ribeirão Preto  YSU3QR          2            Boleto
+65  DGSXFUOIUR 2022-11-05 Ribeirão Preto  BSTSP0          3 Cartão de Crédito
+66  KG19TO2CSV 2022-06-22       Campinas  CAFJ2Z          1 Cartão de Crédito
+67  KWCH1UCD67 2022-05-08 Ribeirão Preto  61LJ3M          3 Cartão de Crédito
+68  8CCUXCSCW7 2022-05-28 Ribeirão Preto  2AOPIX          3 Cartão de Crédito
+69  KWCH1UCD67 2022-12-13 Ribeirão Preto  WDHLIF          1          Dinheiro
+70  G73AAFR45N 2023-01-24 Ribeirão Preto  KJSRXV          3          Dinheiro
+71  9HVZH2Z6JI 2022-02-20 Ribeirão Preto  5BDZUM          1 Cartão de Crédito
+72  J7ODOJPU83 2022-11-27       Campinas  JCVNC9          1          Dinheiro
+73  RXH1G0VSLC 2022-08-04       Campinas  1BC2X6          2 Cartão de Crédito
+74  WA7PBIRVO9 2022-09-11       Campinas  9D1M4R          3            Boleto
+75  Q1SNKW09TC 2022-11-22       Campinas  BSTSP0          2          Dinheiro
+76  WA7PBIRVO9 2022-03-20 Ribeirão Preto  KJSRXV          1          Dinheiro
+77  EX966OLIZF 2022-03-13       Campinas  YGC3SQ          2 Cartão de Crédito
+78  TQ37P5A0LI 2022-10-01       Campinas  SO7IRF          2  Cartão de Débito
+79  RXH1G0VSLC 2023-01-16 Ribeirão Preto  EA1BC1          3 Cartão de Crédito
+80  MDH3I0V22N 2022-02-21 Ribeirão Preto  9D1M4R          2 Cartão de Crédito
+81  RV0HI86POR 2022-02-10 Ribeirão Preto  EMH7C2          1 Cartão de Crédito
+82  Q1SNKW09TC 2022-03-05 Ribeirão Preto  XHUUHD          2 Cartão de Crédito
+83  EX966OLIZF 2022-07-02 Ribeirão Preto  VFU1CC          2          Dinheiro
+84  H5ZVPFN6XB 2022-02-09       Campinas  TLL2Z9          1  Cartão de Débito
+85  UX31LUNUEI 2022-09-16       Campinas  PBDD0Y          1          Dinheiro
+86  H5ZVPFN6XB 2022-11-12       Campinas  1BC2X6          3 Cartão de Crédito
+87  Q1SNKW09TC 2022-07-01       Campinas  8V6UK4          2  Cartão de Débito
+88  90GEXBU0Y8 2022-12-04       Campinas  AVONH2          2          Dinheiro
+89  T38CRZTFYB 2023-02-09       Campinas  MD505S          2  Cartão de Débito
+90  T38CRZTFYB 2022-11-05 Ribeirão Preto  PBDD0Y          2          Dinheiro
+91  WW9YWSBC33 2022-01-28 Ribeirão Preto  9D1M4R          2          Dinheiro
+92  RXH1G0VSLC 2023-03-20 Ribeirão Preto  4RCGEJ          1          Dinheiro
+93  KG19TO2CSV 2023-04-22 Ribeirão Preto  61LJ3M          2 Cartão de Crédito
+94  07CFXBJT0P 2022-09-18 Ribeirão Preto  2AOPIX          1          Dinheiro
+95  EX966OLIZF 2023-05-10 Ribeirão Preto  40XCGF          2 Cartão de Crédito
+96  90GEXBU0Y8 2023-02-24 Ribeirão Preto  IEXADH          3            Boleto
+97  9HVZH2Z6JI 2023-04-13       Campinas  ZZOF4T          2 Cartão de Crédito
+98  QNAC07NM3B 2022-09-12 Ribeirão Preto  EA1BC1          3  Cartão de Débito
+99  PBUOA7PZY1 2022-04-10       Campinas  2ZBU1S          2 Cartão de Crédito
+100 DGSXFUOIUR 2023-01-11       Campinas  AVONH2          2            Boleto
+101 KWCH1UCD67 2022-07-02       Campinas  B4PXL2          2  Cartão de Débito
+102 APQZYQFXQ9 2023-01-06       Campinas  0S9ECF          3            Boleto
+103 S8J44EUTO2 2022-09-09       Campinas  61LJ3M          1          Dinheiro
+104 PBUOA7PZY1 2022-08-14 Ribeirão Preto  YRSXZC          1  Cartão de Débito
+105 S8J44EUTO2 2023-02-27       Campinas  61LJ3M          3  Cartão de Débito
+106 DEMZ0LJP52 2022-09-05       Campinas  SO7IRF          1 Cartão de Crédito
+107 DEMZ0LJP52 2022-12-12 Ribeirão Preto  VQUNFJ          1 Cartão de Crédito
+108 MDH3I0V22N 2022-06-07 Ribeirão Preto  30LKMS          3  Cartão de Débito
+109 TM76F58KL8 2023-03-15       Campinas  SO7IRF          2 Cartão de Crédito
+110 WA7PBIRVO9 2022-08-27       Campinas  Q7ZELB          1  Cartão de Débito
+111 NWKTRU8JHK 2022-12-30       Campinas  JGQA7A          2 Cartão de Crédito
+112 9HVZH2Z6JI 2023-03-30 Ribeirão Preto  877WSS          1 Cartão de Crédito
+113 9HVZH2Z6JI 2023-01-18       Campinas  8J69DK          1          Dinheiro
+114 UI55UMOKAP 2023-04-25       Campinas  AVONH2          2 Cartão de Crédito
+115 9HVZH2Z6JI 2022-07-21 Ribeirão Preto  Q7W410          1          Dinheiro
+116 DEMZ0LJP52 2023-01-24 Ribeirão Preto  EA1BC1          3 Cartão de Crédito
+117 H5ZVPFN6XB 2022-10-09 Ribeirão Preto  X77KNT          1 Cartão de Crédito
+118 RXH1G0VSLC 2022-11-07       Campinas  YRSXZC          3  Cartão de Débito
+119 RXH1G0VSLC 2023-03-29       Campinas  WB1DTE          3 Cartão de Crédito
+120 9HVZH2Z6JI 2022-09-04 Ribeirão Preto  3KNAA4          2            Boleto
+121 WA7PBIRVO9 2022-12-30 Ribeirão Preto  OOLHRF          2  Cartão de Débito
+122 9HVZH2Z6JI 2022-06-27       Campinas  BNG5W1          1          Dinheiro
+123 TQ37P5A0LI 2022-11-14 Ribeirão Preto  YRSXZC          2 Cartão de Crédito
+124 J7ODOJPU83 2023-01-25 Ribeirão Preto  JE1JG2          3          Dinheiro
+125 H5ZVPFN6XB 2022-09-17 Ribeirão Preto  OOLHRF          3            Boleto
+126 KG19TO2CSV 2022-09-18       Campinas  045O5V          1 Cartão de Crédito
+127 TM76F58KL8 2022-03-19 Ribeirão Preto  MD505S          3 Cartão de Crédito
+128 G73AAFR45N 2023-03-08 Ribeirão Preto  Q7W410          3          Dinheiro
+129 UI55UMOKAP 2022-03-15 Ribeirão Preto  2ZBU1S          2 Cartão de Crédito
+130 TQ37P5A0LI 2023-03-16       Campinas  CWZG6I          2          Dinheiro
+131 MDH3I0V22N 2022-05-03       Campinas  YSU3QR          3            Boleto
+132 NWKTRU8JHK 2023-01-04 Ribeirão Preto  5J0AH3          2  Cartão de Débito
+133 8CCUXCSCW7 2023-01-19 Ribeirão Preto  33MTK1          3  Cartão de Débito
+134 T83Q5YAHVA 2023-01-16 Ribeirão Preto  JCVNC9          1            Boleto
+135 UI55UMOKAP 2022-06-20 Ribeirão Preto  HAGM53          1  Cartão de Débito
+136 UX31LUNUEI 2023-05-13       Campinas  B4PXL2          2          Dinheiro
+137 9HVZH2Z6JI 2022-11-20 Ribeirão Preto  EJ1MX0          3            Boleto
+138 KG19TO2CSV 2022-08-01 Ribeirão Preto  VFU1CC          3 Cartão de Crédito
+139 UX31LUNUEI 2023-01-15 Ribeirão Preto  YSU3QR          1  Cartão de Débito
+140 TQ37P5A0LI 2022-06-19 Ribeirão Preto  VFU1CC          1            Boleto
+141 WA7PBIRVO9 2022-04-08 Ribeirão Preto  ZZOF4T          3 Cartão de Crédito
+142 KWCH1UCD67 2022-07-01       Campinas  76SB4S          3            Boleto
+143 IO6JAO00QX 2022-09-27 Ribeirão Preto  IEXADH          3            Boleto
+144 WW9YWSBC33 2022-09-13 Ribeirão Preto  YDBJ9U          3 Cartão de Crédito
+145 DEMZ0LJP52 2023-03-15 Ribeirão Preto  YDBJ9U          1            Boleto
+146 G73AAFR45N 2022-11-30 Ribeirão Preto  TLL2Z9          2            Boleto
+147 9HVZH2Z6JI 2023-05-04       Campinas  34AYOX          1            Boleto
+148 KWCH1UCD67 2022-11-20 Ribeirão Preto  VFU1CC          1 Cartão de Crédito
+149 RXH1G0VSLC 2023-05-08 Ribeirão Preto  BNG5W1          2  Cartão de Débito
+150 G73AAFR45N 2022-09-20       Campinas  PTF6UZ          3 Cartão de Crédito
+151 NWKTRU8JHK 2023-05-23       Campinas  JGQA7A          1  Cartão de Débito
+152 RXH1G0VSLC 2022-06-27       Campinas  G6S114          3 Cartão de Crédito
+153 T83Q5YAHVA 2022-02-21 Ribeirão Preto  L4F17I          2 Cartão de Crédito
+154 KWCH1UCD67 2022-06-29       Campinas  K80Z2M          3            Boleto
+155 IO6JAO00QX 2022-08-19       Campinas  JCVNC9          3            Boleto
+156 S8J44EUTO2 2022-06-29 Ribeirão Preto  0J6LUU          1 Cartão de Crédito
+157 QNAC07NM3B 2022-08-04       Campinas  EAKLHO          2 Cartão de Crédito
+158 KWCH1UCD67 2023-03-26 Ribeirão Preto  30LKMS          3            Boleto
+159 H5ZVPFN6XB 2022-02-19 Ribeirão Preto  1EO780          3            Boleto
+160 G73AAFR45N 2022-01-23 Ribeirão Preto  VFU1CC          1          Dinheiro
+161 Q1SNKW09TC 2022-07-26       Campinas  T3N7EJ          1          Dinheiro
+162 Q1SNKW09TC 2022-03-30 Ribeirão Preto  JCVNC9          2  Cartão de Débito
+163 UX31LUNUEI 2022-04-16       Campinas  CGBB8D          2          Dinheiro
+164 90GEXBU0Y8 2023-05-16       Campinas  K80Z2M          2          Dinheiro
+165 UI55UMOKAP 2022-04-15       Campinas  XHUUHD          1            Boleto
+166 WW9YWSBC33 2022-12-01 Ribeirão Preto  P9ISZ1          1            Boleto
+167 J7ODOJPU83 2023-02-06       Campinas  FLNG2K          3          Dinheiro
+168 EX966OLIZF 2022-11-20 Ribeirão Preto  EA1BC1          2          Dinheiro
+169 DGSXFUOIUR 2022-06-01 Ribeirão Preto  0GUW80          2  Cartão de Débito
+170 WW9YWSBC33 2023-05-18 Ribeirão Preto  WB1DTE          2          Dinheiro
+171 PBUOA7PZY1 2023-05-15       Campinas  Q7ZELB          1          Dinheiro
+172 G73AAFR45N 2022-03-24 Ribeirão Preto  33MTK1          1            Boleto
+173 WW9YWSBC33 2022-11-19 Ribeirão Preto  BNG5W1          3          Dinheiro
+174 H5ZVPFN6XB 2022-01-17       Campinas  Q7ZELB          1          Dinheiro
+175 NWKTRU8JHK 2023-04-19       Campinas  Q7W410          2            Boleto
+176 WW9YWSBC33 2022-09-18       Campinas  33MTK1          3            Boleto
+177 EX966OLIZF 2023-04-14       Campinas  RSMZRA          2          Dinheiro
+178 DGSXFUOIUR 2022-05-31       Campinas  045O5V          3 Cartão de Crédito
+179 PBUOA7PZY1 2023-04-10       Campinas  VFU1CC          2 Cartão de Crédito
+180 MDH3I0V22N 2022-07-15 Ribeirão Preto  JCVNC9          2  Cartão de Débito
+181 8CCUXCSCW7 2022-10-12       Campinas  HAGM53          2  Cartão de Débito
+182 TQ37P5A0LI 2022-06-10 Ribeirão Preto  30LKMS          3 Cartão de Crédito
+183 UI55UMOKAP 2022-05-09       Campinas  5INIIJ          2            Boleto
+184 WA7PBIRVO9 2022-07-18 Ribeirão Preto  4SS5NK          1          Dinheiro
+185 PBUOA7PZY1 2022-11-18       Campinas  XII0EF          3  Cartão de Débito
+186 EX966OLIZF 2022-04-13       Campinas  RK0T0N          2  Cartão de Débito
+187 WW9YWSBC33 2022-12-08 Ribeirão Preto  4SS5NK          2            Boleto
+188 KWCH1UCD67 2023-04-20       Campinas  ZZOF4T          2  Cartão de Débito
+189 UI55UMOKAP 2022-05-07       Campinas  0S9ECF          1 Cartão de Crédito
+190 NWKTRU8JHK 2022-08-26 Ribeirão Preto  YRSXZC          1          Dinheiro
+191 RV0HI86POR 2022-05-12       Campinas  P9ISZ1          1 Cartão de Crédito
+192 9HVZH2Z6JI 2023-04-20       Campinas  32N7IU          2  Cartão de Débito
+193 S8J44EUTO2 2022-07-13       Campinas  LS1A9Q          2            Boleto
+194 KG19TO2CSV 2022-02-13       Campinas  30LKMS          3 Cartão de Crédito
+195 TQ37P5A0LI 2022-04-29       Campinas  YSU3QR          3 Cartão de Crédito
+196 90GEXBU0Y8 2022-11-29 Ribeirão Preto  9D1M4R          1  Cartão de Débito
+197 T83Q5YAHVA 2023-03-06       Campinas  U7RIFC          2 Cartão de Crédito</code></pre>
+</div>
+</div>
+<p>Com os comandos de filtros, também podemos identificar os <em>missing values</em> em nossas bases de dados.</p>
+<p>Por exemplo: como apresentar os indivíduos que não possuem o preenchimento do campo sobrenome?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="st">           WHERE SOBRENOME IS NULL"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] COD_CLIENTE   PRIMEIRO_NOME SOBRENOME     EMAIL         SEXO_BIO     
+[6] QT_FILHOS     NASCIMENTO    IDADE        
+&lt;0 linhas&gt; (ou row.names de comprimento 0)</code></pre>
+</div>
+</div>
+<p><br></p>
+<hr>
+<p><strong>EXERCÍCIO 11</strong></p>
+<p>Apresente apenas os indivíduos que possuam o preenchimento do campo sobrenome, isto é, as observações sem a presença de <em>missing values</em> para a variável mencionada.</p>
+<hr>
+</section>
+<section id="organizando-os-dados-order-by" class="level3">
+<h3 class="anchored" data-anchor-id="organizando-os-dados-order-by">Organizando os Dados: <code>ORDER BY</code></h3>
+<p>Também pode ser interessante organizar as observações filtradas seguindo algum critério (e.g.: ordem crescente; ordem alfabética; etc.). Podemos fazer isso com o auxílio do comando <code>ORDER BY</code>.</p>
+<p>Suponha que quiséssemos organizar os primeiros nomes dos clientes da base de dados em ordem alfabética:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a><span class="st">           ORDER BY PRIMEIRO_NOME ASC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    COD_CLIENTE  PRIMEIRO_NOME      SOBRENOME                            EMAIL
+1        VFU1CC          Aaron       el-Salim         aaron.el-salim@gmail.com
+2        AVONH2          Aayid         Mestas           aayid.mestas@gmail.com
+3        VQUNFJ          Alawi        Landrum          alawi.landrum@gmail.com
+4        RECSQA           Alea      al-Rehman         alea.al-rehman@gmail.com
+5        9GGAWK        Allison         Powers         allison.powers@gmail.com
+6        K80Z2M         Angela      Hernandez       angela.hernandez@gmail.com
+7        B4PXL2         Ashley        Camacho         ashley.camacho@gmail.com
+8        5BDZUM         Aubrey            Kee             aubrey.kee@gmail.com
+9        TLL2Z9       Benjamin        Swenson       benjamin.swenson@gmail.com
+10       0GUW80        Brandon        Sumbunu        brandon.sumbunu@gmail.com
+11       EAKLHO        Brandon           Reed           brandon.reed@gmail.com
+12       L85YED        Brandon        Quezada        brandon.quezada@gmail.com
+13       KJSRXV        Bronson     Villagrana     bronson.villagrana@gmail.com
+14       CWZG6I         Brooke          Vigil           brooke.vigil@gmail.com
+15       1EO780          Bunga           Odom             bunga.odom@gmail.com
+16       YGC3SQ          Caleb      Fernandes        caleb.fernandes@gmail.com
+17       P9ISZ1        Calypso           Lara           calypso.lara@gmail.com
+18       BNG5W1    Christopher      Armstrong  christopher.armstrong@gmail.com
+19       6PZ0MK         Chuong         Billie          chuong.billie@gmail.com
+20       FLNG2K         Collin           Knox            collin.knox@gmail.com
+21       CGBB8D         Connor       el-Malik        connor.el-malik@gmail.com
+22       4H888J       Cristina        Younger       cristina.younger@gmail.com
+23       IEXADH         Dakota   Tsinnijinnie    dakota.tsinnijinnie@gmail.com
+24       4RCGEJ        Dalicia           Alex           dalicia.alex@gmail.com
+25       PTF6UZ         Damani         Adkins          damani.adkins@gmail.com
+26       WB1DTE         Daniel        Braxton         daniel.braxton@gmail.com
+27       JCVNC9      Demitries           Tree         demitries.tree@gmail.com
+28       CU4P89         Denesh   Amphonephong    denesh.amphonephong@gmail.com
+29       33MTK1        Dhareef        el-Imam        dhareef.el-imam@gmail.com
+30       EMH7C2         Dwayne         Forrey          dwayne.forrey@gmail.com
+31       9D1M4R          Dylan          Pryor            dylan.pryor@gmail.com
+32       L4F17I          Dylan      Verhaeghe        dylan.verhaeghe@gmail.com
+33       8V6UK4            Eli           Diep               eli.diep@gmail.com
+34       ZXIJ1G           Eric         Mccall            eric.mccall@gmail.com
+35       HMUNDA      Fat'hiyaa     Kaibetoney   fat'hiyaa.kaibetoney@gmail.com
+36       4Y0XTG       Gretchen        Mcfalls       gretchen.mcfalls@gmail.com
+37       0J6LUU         Husain         Garcia          husain.garcia@gmail.com
+38       3KNAA4         Ismael          Klann           ismael.klann@gmail.com
+39       1BC2X6         Jaabir       Martinez        jaabir.martinez@gmail.com
+40       OOLHRF          Jacob       Sisneros         jacob.sisneros@gmail.com
+41       DXUVD1          Jacob      Neighbors        jacob.neighbors@gmail.com
+42       HA6IEW        Jaleela         Ambriz         jaleela.ambriz@gmail.com
+43       0QABKK          Janea          Allen            janea.allen@gmail.com
+44       045O5V        Jasmine          Marsh          jasmine.marsh@gmail.com
+45       61LJ3M        Jazzmyn           Nill           jazzmyn.nill@gmail.com
+46       BSTSP0          Jesse          Somer            jesse.somer@gmail.com
+47       XII0EF        Johnnie         Carter         johnnie.carter@gmail.com
+48       ZULPBL         Joseph        Swanson         joseph.swanson@gmail.com
+49       0X4OVU      Joylensia         Harris       joylensia.harris@gmail.com
+50       JE1JG2       Julianna        Wallace       julianna.wallace@gmail.com
+51       2ZBU1S        Kendall      Hernandez      kendall.hernandez@gmail.com
+52       5INIIJ          Kevin           Ruiz             kevin.ruiz@gmail.com
+53       34AYOX          Kevin       Williams         kevin.williams@gmail.com
+54       YRSXZC           Leah       el-Hasen          leah.el-hasen@gmail.com
+55       G0I1JN           Luis          Moote             luis.moote@gmail.com
+56       877WSS       Makenzie           Oros          makenzie.oros@gmail.com
+57       2AOPIX        Mallory       Anderson       mallory.anderson@gmail.com
+58       ZZOF4T      Manuelito         Holmes       manuelito.holmes@gmail.com
+59       LS1A9Q         Mariya       el-Amini        mariya.el-amini@gmail.com
+60       HHM7DU           Mary           Tran              mary.tran@gmail.com
+61       AHN1A6 Matthew-Angelo        Kumagai matthew-angelo.kumagai@gmail.com
+62       WDHLIF       Maxfield   Perez Crespo  maxfield.perez crespo@gmail.com
+63       76SB4S        Michael     al-Rahmani     michael.al-rahmani@gmail.com
+64       Q7W410      Mujaahida         Schlom       mujaahida.schlom@gmail.com
+65       8J69DK          Nancy        Cuellar          nancy.cuellar@gmail.com
+66       G6S114       Nicholas       al-Assaf      nicholas.al-assaf@gmail.com
+67       Q7ZELB         Olivia        Makaiwi         olivia.makaiwi@gmail.com
+68       X77KNT           Paul           Ball              paul.ball@gmail.com
+69       RK0T0N        Raaniya          Smith          raaniya.smith@gmail.com
+70       XHUUHD         Rachel         Abrams          rachel.abrams@gmail.com
+71       40XCGF        Raheema         Garcia         raheema.garcia@gmail.com
+72       CK9HZO         Rashaa       Gallegos        rashaa.gallegos@gmail.com
+73       30LKMS            Rey        el-Lone            rey.el-lone@gmail.com
+74       MYIJ0I           Ryan      al-Shakir         ryan.al-shakir@gmail.com
+75       PBDD0Y        Saahira       Griffith       saahira.griffith@gmail.com
+76       SO7IRF            Sad        Kennedy            sad.kennedy@gmail.com
+77       0DO1V1           Sage           Link              sage.link@gmail.com
+78       0S9ECF         Sandra       al-Ahmad        sandra.al-ahmad@gmail.com
+79       4SS5NK        Shadhaa Ramirez Arenas shadhaa.ramirez arenas@gmail.com
+80       32N7IU          Shawn     Cunningham       shawn.cunningham@gmail.com
+81       YSU3QR      Sounkhone        Mcclure      sounkhone.mcclure@gmail.com
+82       R79IU9         Steven         Nguyen          steven.nguyen@gmail.com
+83       IXP3J4        Sultana       Williams       sultana.williams@gmail.com
+84       5J0AH3        Taamira       Thompson       taamira.thompson@gmail.com
+85       BGBUHS       Tahleela     el-Shareef    tahleela.el-shareef@gmail.com
+86       MD505S        Tareefa       al-Javed       tareefa.al-javed@gmail.com
+87       EJ1MX0         Teresa         Foster          teresa.foster@gmail.com
+88       702ZG7         Trevon          Xiong           trevon.xiong@gmail.com
+89       Y6EFV2          Tuyen        Hauptli          tuyen.hauptli@gmail.com
+90       U7RIFC         Ty'Lia   Saracay Pena    ty'lia.saracay pena@gmail.com
+91       HAGM53        Vanisha         Bodell         vanisha.bodell@gmail.com
+92       HDU5LD          Vanya        Mcguire          vanya.mcguire@gmail.com
+93       T3N7EJ       Wajdiyya         Yancey        wajdiyya.yancey@gmail.com
+94       YDBJ9U          Warda        Montoya          warda.montoya@gmail.com
+95       GEY8UY          Wyatt       Arechiga         wyatt.arechiga@gmail.com
+96       MWNEYI        Ya'eesh        Valadez        ya'eesh.valadez@gmail.com
+97       JGQA7A       Yordanos             Vu            yordanos.vu@gmail.com
+98       RSMZRA          Yusra          Horst            yusra.horst@gmail.com
+99       CAFJ2Z        Zachary         Abeyta         zachary.abeyta@gmail.com
+100      EA1BC1        Zachary        Winston        zachary.winston@gmail.com
+    SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+1          M         0 2003-09-24    22
+2          M         1 1985-06-08    40
+3          M         4 1949-06-22    76
+4          F         1 2001-04-22    24
+5          F         0 1995-12-25    30
+6          F         4 1985-02-07    41
+7          F         3 1976-06-23    49
+8          F         3 2001-07-11    24
+9          M         3 2006-10-04    19
+10         M         2 2002-05-19    23
+11         M         3 2001-02-19    25
+12         M         0 2004-03-06    22
+13         M         0 2003-04-19    22
+14         F         0 2000-08-11    25
+15         F         1 1983-12-14    42
+16         M         0 1969-11-12    56
+17         F         3 1989-09-18    36
+18         M         2 1999-05-12    26
+19         M         1 1971-02-24    55
+20         M         2 1991-01-10    35
+21         M         5 1969-05-17    56
+22         F         2 1982-02-03    44
+23         M         0 1997-02-07    29
+24         F         2 2006-08-07    19
+25         M         1 1961-03-29    65
+26         M         2 1994-04-11    32
+27         M         2 2001-06-06    24
+28         M         2 1982-07-01    43
+29         M         4 2001-08-05    24
+30         M         1 1981-03-25    45
+31         M         3 1996-04-06    30
+32         M         2 1997-05-01    28
+33         M         2 1965-05-19    60
+34         M         3 1951-08-31    74
+35         F         3 1996-10-25    29
+36         F         0 1987-09-12    38
+37         M         5 2006-11-04    19
+38         M         0 1971-09-22    54
+39         M         5 2004-03-20    22
+40         M         0 1949-02-11    77
+41         M         2 1990-08-01    35
+42         F         2 1999-05-15    26
+43         F         0 1999-04-14    27
+44         F         1 1983-06-25    42
+45         F         0 1995-10-27    30
+46         M         0 1967-04-08    59
+47         M         1 2004-04-18    21
+48         M         1 1991-04-02    35
+49         F         2 1985-02-27    41
+50         F         4 1983-08-10    42
+51         M         2 1984-01-07    42
+52         M         0 1999-10-07    26
+53         M         1 1994-12-31    31
+54         F         2 1970-12-21    55
+55         M         2 1955-10-10    70
+56         F         0 1969-08-24    56
+57         F         0 1954-10-20    71
+58         M         1 1961-04-23    64
+59         F         2 1996-06-30    29
+60         F         1 1996-12-12    29
+61         M         1 1990-12-25    35
+62         M         0 2000-05-05    25
+63         M         1 1962-09-07    63
+64         F         0 1965-01-17    61
+65         F         0 1966-02-16    60
+66         M         0 1990-08-18    35
+67         F         0 1967-06-09    58
+68         M         2 1979-10-26    46
+69         F         1 2006-02-23    20
+70         F         0 2000-11-05    25
+71         F         3 1949-04-30    76
+72         F         2 1979-09-04    46
+73         M         1 1990-10-20    35
+74         M         3 1998-10-20    27
+75         F         0 2003-01-27    23
+76         M         1 1983-09-28    42
+77         M         1 1967-01-17    59
+78         F         4 1990-10-22    35
+79         F         1 1980-10-13    45
+80         M         0 2005-04-26    20
+81         M         1 2004-08-09    21
+82         M         0 2006-05-21    19
+83         F         0 1968-09-06    57
+84         F         1 1969-08-04    56
+85         F         1 2004-05-18    21
+86         F         1 2002-12-08    23
+87         F         2 1977-08-25    48
+88         M         0 1972-04-16    53
+89         F         0 1989-05-08    36
+90         F         1 1997-02-20    29
+91         F         1 1977-06-03    48
+92         F         0 2003-03-05    23
+93         F         1 2003-04-08    23
+94         F         1 1952-11-23    73
+95         M         2 1999-03-16    27
+96         M         0 1978-09-03    47
+97         F         2 2004-02-17    22
+98         F         2 1962-09-04    63
+99         M         1 1958-03-12    68
+100        M         2 2006-11-03    19</code></pre>
+</div>
+</div>
+<p>Notaram o operador <code>ASC</code>?</p>
+<p>Ele é uma abreviação da palavra ascending, que significa ascendente, ou seja, ordem crescente (alfabética, já que estamos trabalhando com textos).</p>
+<p>Para inverter essa lógica, basta declarar <code>DESC</code>, isto é, <em>descending</em>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao, </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="st">              *</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="st">           FROM CLIENTES</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="st">           ORDER BY PRIMEIRO_NOME DESC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    COD_CLIENTE  PRIMEIRO_NOME      SOBRENOME                            EMAIL
+1        CAFJ2Z        Zachary         Abeyta         zachary.abeyta@gmail.com
+2        EA1BC1        Zachary        Winston        zachary.winston@gmail.com
+3        RSMZRA          Yusra          Horst            yusra.horst@gmail.com
+4        JGQA7A       Yordanos             Vu            yordanos.vu@gmail.com
+5        MWNEYI        Ya'eesh        Valadez        ya'eesh.valadez@gmail.com
+6        GEY8UY          Wyatt       Arechiga         wyatt.arechiga@gmail.com
+7        YDBJ9U          Warda        Montoya          warda.montoya@gmail.com
+8        T3N7EJ       Wajdiyya         Yancey        wajdiyya.yancey@gmail.com
+9        HDU5LD          Vanya        Mcguire          vanya.mcguire@gmail.com
+10       HAGM53        Vanisha         Bodell         vanisha.bodell@gmail.com
+11       U7RIFC         Ty'Lia   Saracay Pena    ty'lia.saracay pena@gmail.com
+12       Y6EFV2          Tuyen        Hauptli          tuyen.hauptli@gmail.com
+13       702ZG7         Trevon          Xiong           trevon.xiong@gmail.com
+14       EJ1MX0         Teresa         Foster          teresa.foster@gmail.com
+15       MD505S        Tareefa       al-Javed       tareefa.al-javed@gmail.com
+16       BGBUHS       Tahleela     el-Shareef    tahleela.el-shareef@gmail.com
+17       5J0AH3        Taamira       Thompson       taamira.thompson@gmail.com
+18       IXP3J4        Sultana       Williams       sultana.williams@gmail.com
+19       R79IU9         Steven         Nguyen          steven.nguyen@gmail.com
+20       YSU3QR      Sounkhone        Mcclure      sounkhone.mcclure@gmail.com
+21       32N7IU          Shawn     Cunningham       shawn.cunningham@gmail.com
+22       4SS5NK        Shadhaa Ramirez Arenas shadhaa.ramirez arenas@gmail.com
+23       0S9ECF         Sandra       al-Ahmad        sandra.al-ahmad@gmail.com
+24       0DO1V1           Sage           Link              sage.link@gmail.com
+25       SO7IRF            Sad        Kennedy            sad.kennedy@gmail.com
+26       PBDD0Y        Saahira       Griffith       saahira.griffith@gmail.com
+27       MYIJ0I           Ryan      al-Shakir         ryan.al-shakir@gmail.com
+28       30LKMS            Rey        el-Lone            rey.el-lone@gmail.com
+29       CK9HZO         Rashaa       Gallegos        rashaa.gallegos@gmail.com
+30       40XCGF        Raheema         Garcia         raheema.garcia@gmail.com
+31       XHUUHD         Rachel         Abrams          rachel.abrams@gmail.com
+32       RK0T0N        Raaniya          Smith          raaniya.smith@gmail.com
+33       X77KNT           Paul           Ball              paul.ball@gmail.com
+34       Q7ZELB         Olivia        Makaiwi         olivia.makaiwi@gmail.com
+35       G6S114       Nicholas       al-Assaf      nicholas.al-assaf@gmail.com
+36       8J69DK          Nancy        Cuellar          nancy.cuellar@gmail.com
+37       Q7W410      Mujaahida         Schlom       mujaahida.schlom@gmail.com
+38       76SB4S        Michael     al-Rahmani     michael.al-rahmani@gmail.com
+39       WDHLIF       Maxfield   Perez Crespo  maxfield.perez crespo@gmail.com
+40       AHN1A6 Matthew-Angelo        Kumagai matthew-angelo.kumagai@gmail.com
+41       HHM7DU           Mary           Tran              mary.tran@gmail.com
+42       LS1A9Q         Mariya       el-Amini        mariya.el-amini@gmail.com
+43       ZZOF4T      Manuelito         Holmes       manuelito.holmes@gmail.com
+44       2AOPIX        Mallory       Anderson       mallory.anderson@gmail.com
+45       877WSS       Makenzie           Oros          makenzie.oros@gmail.com
+46       G0I1JN           Luis          Moote             luis.moote@gmail.com
+47       YRSXZC           Leah       el-Hasen          leah.el-hasen@gmail.com
+48       5INIIJ          Kevin           Ruiz             kevin.ruiz@gmail.com
+49       34AYOX          Kevin       Williams         kevin.williams@gmail.com
+50       2ZBU1S        Kendall      Hernandez      kendall.hernandez@gmail.com
+51       JE1JG2       Julianna        Wallace       julianna.wallace@gmail.com
+52       0X4OVU      Joylensia         Harris       joylensia.harris@gmail.com
+53       ZULPBL         Joseph        Swanson         joseph.swanson@gmail.com
+54       XII0EF        Johnnie         Carter         johnnie.carter@gmail.com
+55       BSTSP0          Jesse          Somer            jesse.somer@gmail.com
+56       61LJ3M        Jazzmyn           Nill           jazzmyn.nill@gmail.com
+57       045O5V        Jasmine          Marsh          jasmine.marsh@gmail.com
+58       0QABKK          Janea          Allen            janea.allen@gmail.com
+59       HA6IEW        Jaleela         Ambriz         jaleela.ambriz@gmail.com
+60       OOLHRF          Jacob       Sisneros         jacob.sisneros@gmail.com
+61       DXUVD1          Jacob      Neighbors        jacob.neighbors@gmail.com
+62       1BC2X6         Jaabir       Martinez        jaabir.martinez@gmail.com
+63       3KNAA4         Ismael          Klann           ismael.klann@gmail.com
+64       0J6LUU         Husain         Garcia          husain.garcia@gmail.com
+65       4Y0XTG       Gretchen        Mcfalls       gretchen.mcfalls@gmail.com
+66       HMUNDA      Fat'hiyaa     Kaibetoney   fat'hiyaa.kaibetoney@gmail.com
+67       ZXIJ1G           Eric         Mccall            eric.mccall@gmail.com
+68       8V6UK4            Eli           Diep               eli.diep@gmail.com
+69       L4F17I          Dylan      Verhaeghe        dylan.verhaeghe@gmail.com
+70       9D1M4R          Dylan          Pryor            dylan.pryor@gmail.com
+71       EMH7C2         Dwayne         Forrey          dwayne.forrey@gmail.com
+72       33MTK1        Dhareef        el-Imam        dhareef.el-imam@gmail.com
+73       CU4P89         Denesh   Amphonephong    denesh.amphonephong@gmail.com
+74       JCVNC9      Demitries           Tree         demitries.tree@gmail.com
+75       WB1DTE         Daniel        Braxton         daniel.braxton@gmail.com
+76       PTF6UZ         Damani         Adkins          damani.adkins@gmail.com
+77       4RCGEJ        Dalicia           Alex           dalicia.alex@gmail.com
+78       IEXADH         Dakota   Tsinnijinnie    dakota.tsinnijinnie@gmail.com
+79       4H888J       Cristina        Younger       cristina.younger@gmail.com
+80       CGBB8D         Connor       el-Malik        connor.el-malik@gmail.com
+81       FLNG2K         Collin           Knox            collin.knox@gmail.com
+82       6PZ0MK         Chuong         Billie          chuong.billie@gmail.com
+83       BNG5W1    Christopher      Armstrong  christopher.armstrong@gmail.com
+84       P9ISZ1        Calypso           Lara           calypso.lara@gmail.com
+85       YGC3SQ          Caleb      Fernandes        caleb.fernandes@gmail.com
+86       1EO780          Bunga           Odom             bunga.odom@gmail.com
+87       CWZG6I         Brooke          Vigil           brooke.vigil@gmail.com
+88       KJSRXV        Bronson     Villagrana     bronson.villagrana@gmail.com
+89       L85YED        Brandon        Quezada        brandon.quezada@gmail.com
+90       0GUW80        Brandon        Sumbunu        brandon.sumbunu@gmail.com
+91       EAKLHO        Brandon           Reed           brandon.reed@gmail.com
+92       TLL2Z9       Benjamin        Swenson       benjamin.swenson@gmail.com
+93       5BDZUM         Aubrey            Kee             aubrey.kee@gmail.com
+94       B4PXL2         Ashley        Camacho         ashley.camacho@gmail.com
+95       K80Z2M         Angela      Hernandez       angela.hernandez@gmail.com
+96       9GGAWK        Allison         Powers         allison.powers@gmail.com
+97       RECSQA           Alea      al-Rehman         alea.al-rehman@gmail.com
+98       VQUNFJ          Alawi        Landrum          alawi.landrum@gmail.com
+99       AVONH2          Aayid         Mestas           aayid.mestas@gmail.com
+100      VFU1CC          Aaron       el-Salim         aaron.el-salim@gmail.com
+    SEXO_BIO QT_FILHOS NASCIMENTO IDADE
+1          M         1 1958-03-12    68
+2          M         2 2006-11-03    19
+3          F         2 1962-09-04    63
+4          F         2 2004-02-17    22
+5          M         0 1978-09-03    47
+6          M         2 1999-03-16    27
+7          F         1 1952-11-23    73
+8          F         1 2003-04-08    23
+9          F         0 2003-03-05    23
+10         F         1 1977-06-03    48
+11         F         1 1997-02-20    29
+12         F         0 1989-05-08    36
+13         M         0 1972-04-16    53
+14         F         2 1977-08-25    48
+15         F         1 2002-12-08    23
+16         F         1 2004-05-18    21
+17         F         1 1969-08-04    56
+18         F         0 1968-09-06    57
+19         M         0 2006-05-21    19
+20         M         1 2004-08-09    21
+21         M         0 2005-04-26    20
+22         F         1 1980-10-13    45
+23         F         4 1990-10-22    35
+24         M         1 1967-01-17    59
+25         M         1 1983-09-28    42
+26         F         0 2003-01-27    23
+27         M         3 1998-10-20    27
+28         M         1 1990-10-20    35
+29         F         2 1979-09-04    46
+30         F         3 1949-04-30    76
+31         F         0 2000-11-05    25
+32         F         1 2006-02-23    20
+33         M         2 1979-10-26    46
+34         F         0 1967-06-09    58
+35         M         0 1990-08-18    35
+36         F         0 1966-02-16    60
+37         F         0 1965-01-17    61
+38         M         1 1962-09-07    63
+39         M         0 2000-05-05    25
+40         M         1 1990-12-25    35
+41         F         1 1996-12-12    29
+42         F         2 1996-06-30    29
+43         M         1 1961-04-23    64
+44         F         0 1954-10-20    71
+45         F         0 1969-08-24    56
+46         M         2 1955-10-10    70
+47         F         2 1970-12-21    55
+48         M         0 1999-10-07    26
+49         M         1 1994-12-31    31
+50         M         2 1984-01-07    42
+51         F         4 1983-08-10    42
+52         F         2 1985-02-27    41
+53         M         1 1991-04-02    35
+54         M         1 2004-04-18    21
+55         M         0 1967-04-08    59
+56         F         0 1995-10-27    30
+57         F         1 1983-06-25    42
+58         F         0 1999-04-14    27
+59         F         2 1999-05-15    26
+60         M         0 1949-02-11    77
+61         M         2 1990-08-01    35
+62         M         5 2004-03-20    22
+63         M         0 1971-09-22    54
+64         M         5 2006-11-04    19
+65         F         0 1987-09-12    38
+66         F         3 1996-10-25    29
+67         M         3 1951-08-31    74
+68         M         2 1965-05-19    60
+69         M         2 1997-05-01    28
+70         M         3 1996-04-06    30
+71         M         1 1981-03-25    45
+72         M         4 2001-08-05    24
+73         M         2 1982-07-01    43
+74         M         2 2001-06-06    24
+75         M         2 1994-04-11    32
+76         M         1 1961-03-29    65
+77         F         2 2006-08-07    19
+78         M         0 1997-02-07    29
+79         F         2 1982-02-03    44
+80         M         5 1969-05-17    56
+81         M         2 1991-01-10    35
+82         M         1 1971-02-24    55
+83         M         2 1999-05-12    26
+84         F         3 1989-09-18    36
+85         M         0 1969-11-12    56
+86         F         1 1983-12-14    42
+87         F         0 2000-08-11    25
+88         M         0 2003-04-19    22
+89         M         0 2004-03-06    22
+90         M         2 2002-05-19    23
+91         M         3 2001-02-19    25
+92         M         3 2006-10-04    19
+93         F         3 2001-07-11    24
+94         F         3 1976-06-23    49
+95         F         4 1985-02-07    41
+96         F         0 1995-12-25    30
+97         F         1 2001-04-22    24
+98         M         4 1949-06-22    76
+99         M         1 1985-06-08    40
+100        M         0 2003-09-24    22</code></pre>
+</div>
+</div>
+<hr>
+<p><strong>EXERCÍCIO 12</strong></p>
+<p>Apresente as observações em ordem decrescente de idade, tendo a certeza de que os <em>missing values</em> sejam desconsiderados.</p>
+<hr>
+</section>
+<section id="combinando-tabelas-joins" class="level3">
+<h3 class="anchored" data-anchor-id="combinando-tabelas-joins">Combinando Tabelas: JOINs</h3>
+<p>Até o momento, trabalhamos com consultas em uma única tabela por vez. Porém, como discutimos no início do curso, os bancos de dados relacionais são compostos por múltiplas tabelas que se conectam entre si.</p>
+<p>Em muitos casos, as informações que precisamos não estão concentradas em uma única tabela. Será necessário, portanto, combinar dados provenientes de tabelas distintas.</p>
+<p>É exatamente para isso que utilizamos os chamados JOINs.</p>
+<p>Se vocês se recordarem, já trabalhamos com esse tipo de operação na linguagem R, especialmente com o pacote <code>dplyr</code>. Funções como <code>left_join()</code>, <code>inner_join()</code>, <code>right_join()</code>, <code>full_join()</code>, etc, já nos permitiam combinar bases de dados a partir de uma variável em comum. <strong>No SQL, a lógica é exatamente a mesma.</strong></p>
+<p>Lembre-se de que um join nada mais é do que uma forma de combinar tabelas diferentes a partir de uma chave em comum. Por exemplo, a tabela <strong>CLIENTES</strong> pode conter informações cadastrais; e a tabela <strong>VENDAS</strong> pode conter informações sobre compras realizadas. Ambas podem estar conectadas por uma variável que identifique os clientes de nossa loja.</p>
+<p>Para o recorte de nossa aula, focaremos no <code>LEFT JOIN</code> (os outros joins existem e funcionam da mesma forma como estudamos no R). O <code>LEFT JOIN</code> pode ser interpretado da seguinte forma: “traga todos os registros da tabela da esquerda, e, quando houver correspondência, traga também os dados da tabela da direita”.</p>
+<p>A estrutura de um <code>LEFT JOIN</code> é a seguinte:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>SELECT colunas</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>FROM tabela_esquerda</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>LEFT JOIN tabela_direita</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>ON tabela_esquerda.chave <span class="ot">=</span> tabela_direita.chave</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Suponha que desejemos visualizar o primeiro_nome dos clientes, e as informações de vendas associadas a esses clientes.</p>
+<p>Podemos fazer:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conexao,</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"SELECT</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="st">              CLIENTES.COD_CLIENTE,</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="st">              CLIENTES.PRIMEIRO_NOME,</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="st">              VENDAS.SKU,</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="st">              VENDAS.QUANTIDADE</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a><span class="st">            FROM CLIENTES</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a><span class="st">            LEFT JOIN VENDAS</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a><span class="st">              ON CLIENTES.COD_CLIENTE = VENDAS.CLIENTE</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a><span class="st">            LIMIT 10"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   COD_CLIENTE PRIMEIRO_NOME        SKU QUANTIDADE
+1       0S9ECF        Sandra RV0HI86POR          3
+2       0S9ECF        Sandra T83Q5YAHVA          3
+3       0S9ECF        Sandra TM76F58KL8          3
+4       0S9ECF        Sandra DGSXFUOIUR          3
+5       0S9ECF        Sandra WW9YWSBC33          1
+6       0S9ECF        Sandra APQZYQFXQ9          3
+7       0S9ECF        Sandra 9HVZH2Z6JI          2
+8       0S9ECF        Sandra H5ZVPFN6XB          2
+9       0S9ECF        Sandra Q1SNKW09TC          3
+10      0S9ECF        Sandra UI55UMOKAP          1</code></pre>
+</div>
+</div>
+<p>Note que todos os clientes apareceram na consulta. Se o cliente tiver vendas, os dados aparecerão normalmente. Por outro lado, se o cliente não tiver vendas, os campos da tabela <strong>VENDAS</strong> aparecerão como <code>NULL</code>. Portanto, o <code>LEFT JOIN</code> preserva completamente a tabela da esquerda.</p>
+<p><strong>ATENÇÃO:</strong> Para que um join funcione corretamente, é fundamental que exista uma variável em comum entre as tabelas (a chamada chave de ligação)! Sem isso, o banco de dados não saberá como relacionar os registros.</p>
+<hr>
+<p><strong>EXERCÍCIO 13</strong></p>
+<p>Utilizando as tabelas <strong>CLIENTES</strong> e <strong>VENDAS</strong>, construa uma consulta que apresente:</p>
+<ul>
+<li>o primeiro nome dos clientes</li>
+<li>a quantidade de produtos vendidos a eles.</li>
+</ul>
+<hr>
+</section>
+<section id="agrupando-com-o-sql-group-by" class="level3">
+<h3 class="anchored" data-anchor-id="agrupando-com-o-sql-group-by">Agrupando com o SQL: <code>GROUP BY</code></h3>
+<p>Até o momento, realizamos seleções, filtros, ordenações e combinações de tabelas. Porém, muitas vezes, não queremos analisar os dados linha a linha, mas sim resumir informações por grupos.</p>
+<p>É exatamente para isso que utilizamos o comando <code>GROUP BY</code>.</p>
+<p>Vamos começar com um exemplo simples: contar quantas vendas ocorreram por loja.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="st">     LOJA,</span></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="st">     COUNT(*) AS QTDE_VENDAS</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM VENDAS</span></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="st">   GROUP BY LOJA"</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   LOJA QTDE_VENDAS
+1              Campinas          96
+2             Guarulhos          80
+3                Osasco          79
+4        Ribeirão Preto         101
+5           Santo André          89
+6            São Carlos          90
+7 São José do Rio Preto          97
+8             São Paulo          98</code></pre>
+</div>
+</div>
+<p>Nesse caso, estamos agrupando as observações pela variável <code>LOJA</code> e, para cada grupo, contando o número de registros existentes.</p>
+<p>Também poderíamos refinar essa análise, agrupando nossos resultados por loja e por tipo de pagamento:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="st">     LOJA,</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="st">     PAGAMENTO,</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="st">     COUNT(*) AS QTDE_VENDAS</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM VENDAS</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a><span class="st">   GROUP BY LOJA, PAGAMENTO"</span></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    LOJA         PAGAMENTO QTDE_VENDAS
+1               Campinas            Boleto          16
+2               Campinas Cartão de Crédito          33
+3               Campinas  Cartão de Débito          23
+4               Campinas          Dinheiro          24
+5              Guarulhos            Boleto          12
+6              Guarulhos Cartão de Crédito          31
+7              Guarulhos  Cartão de Débito          16
+8              Guarulhos          Dinheiro          21
+9                 Osasco            Boleto          12
+10                Osasco Cartão de Crédito          35
+11                Osasco  Cartão de Débito          13
+12                Osasco          Dinheiro          19
+13        Ribeirão Preto            Boleto          26
+14        Ribeirão Preto Cartão de Crédito          32
+15        Ribeirão Preto  Cartão de Débito          19
+16        Ribeirão Preto          Dinheiro          24
+17           Santo André            Boleto          19
+18           Santo André Cartão de Crédito          36
+19           Santo André  Cartão de Débito          17
+20           Santo André          Dinheiro          17
+21            São Carlos            Boleto          20
+22            São Carlos Cartão de Crédito          37
+23            São Carlos  Cartão de Débito          15
+24            São Carlos          Dinheiro          18
+25 São José do Rio Preto            Boleto          25
+26 São José do Rio Preto Cartão de Crédito          33
+27 São José do Rio Preto  Cartão de Débito          23
+28 São José do Rio Preto          Dinheiro          16
+29             São Paulo            Boleto          17
+30             São Paulo Cartão de Crédito          44
+31             São Paulo  Cartão de Débito          18
+32             São Paulo          Dinheiro          19</code></pre>
+</div>
+</div>
+<p>Agora, cada combinação de <code>LOJA</code> e <code>PAGAMENTO</code> gera um grupo distinto.</p>
+<p>Também podemos combinar o que aprendemos até aqui com o comando <code>ORDER BY</code>, controlando a ordenação dos resultados:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="st">     LOJA,</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="st">     PAGAMENTO,</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="st">     COUNT(*) AS QTDE_VENDAS</span></span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM VENDAS</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="st">   GROUP BY LOJA, PAGAMENTO</span></span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a><span class="st">   ORDER BY LOJA ASC, PAGAMENTO DESC"</span></span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    LOJA         PAGAMENTO QTDE_VENDAS
+1               Campinas          Dinheiro          24
+2               Campinas  Cartão de Débito          23
+3               Campinas Cartão de Crédito          33
+4               Campinas            Boleto          16
+5              Guarulhos          Dinheiro          21
+6              Guarulhos  Cartão de Débito          16
+7              Guarulhos Cartão de Crédito          31
+8              Guarulhos            Boleto          12
+9                 Osasco          Dinheiro          19
+10                Osasco  Cartão de Débito          13
+11                Osasco Cartão de Crédito          35
+12                Osasco            Boleto          12
+13        Ribeirão Preto          Dinheiro          24
+14        Ribeirão Preto  Cartão de Débito          19
+15        Ribeirão Preto Cartão de Crédito          32
+16        Ribeirão Preto            Boleto          26
+17           Santo André          Dinheiro          17
+18           Santo André  Cartão de Débito          17
+19           Santo André Cartão de Crédito          36
+20           Santo André            Boleto          19
+21            São Carlos          Dinheiro          18
+22            São Carlos  Cartão de Débito          15
+23            São Carlos Cartão de Crédito          37
+24            São Carlos            Boleto          20
+25 São José do Rio Preto          Dinheiro          16
+26 São José do Rio Preto  Cartão de Débito          23
+27 São José do Rio Preto Cartão de Crédito          33
+28 São José do Rio Preto            Boleto          25
+29             São Paulo          Dinheiro          19
+30             São Paulo  Cartão de Débito          18
+31             São Paulo Cartão de Crédito          44
+32             São Paulo            Boleto          17</code></pre>
+</div>
+</div>
+<p>Aqui estamos ordenando as lojas em ordem crescente (de A até Z); e os tipos de pagamento em ordem decrescente.</p>
+<p>Até aqui, utilizamos a função <code>COUNT()</code> para contar o número de registros. Porém, podemos realizar outras análises agregadas.</p>
+<p>As chamadas funções de agregação são utilizadas para resumir os dados dentro de cada grupo.</p>
+<p>As principais são:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Função de Agregação</th>
+<th>Finalidade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>AVG()</code></td>
+<td>Calcular a média</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>COUNT()</code></td>
+<td>Contar registros (ou valores não nulos)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>MIN()</code></td>
+<td>Identificar o valor mínimo</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>MAX()</code></td>
+<td>Identificar o valor máximo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>SUM()</code></td>
+<td>Calcular a soma</td>
+</tr>
+</tbody>
+</table>
+<p>Por exemplo, poderíamos calcular o custo médio dos produtos, por marca do produto:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  conexao,</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SELECT</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="st">     TIPO,</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="st">     MARCA,</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="st">     AVG(CUSTO_COMPRA) AS CUSTO_MEDIO</span></span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="st">   FROM PRODUTOS</span></span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a><span class="st">   GROUP BY MARCA"</span></span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   TIPO  MARCA CUSTO_MEDIO
+1 Calça Adidas        94.2
+2 Calça   Nike        79.3
+3 Calça   Puma        84.9</code></pre>
+</div>
+</div>
+<hr>
+<p><strong>EXERCÍCIO 14</strong></p>
+<p>A partir da tabela <strong>VENDAS</strong>, construa uma consulta que apresente:</p>
+<ul>
+<li>a <code>LOJA</code>;</li>
+<li>o valor total de vendas;</li>
+<li>a quantidade de vendas.</li>
+</ul>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
