@@ -14,6 +14,8 @@ toc: false
 
 ## Quarto
 
+Bem-vindos(as)!
+
 Até o momento, temos utilizado *scripts* (*File* \>\> *New File* \>\> *R Script*) para codar, aprender e solucionar problemas, o que, de fato, é bastante útil.
 
 No entanto, há situações em que, além do código, precisamos integrar texto e os resultados gerados em um único documento reproduzível, organizado e de fácil compartilhamento.
