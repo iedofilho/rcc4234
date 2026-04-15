@@ -3,6 +3,7 @@ title: "The ~~Social~~ Render Network"
 format:
   html:
     embed-resources: true
+    self-contained: true
     toc: false
     toc-title: "Sumário"
 editor: visual
