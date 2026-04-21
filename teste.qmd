@@ -1,0 +1,33 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+# Teste
+
+Oi, isso é um teste!
+
+```{r}
+x <- 2:45
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#| paged-print: false
+library(tidyverse)
+```
+
+Fim do documento.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| paged-print: false
+mtcars |> 
+  ggplot() +
+  geom_point(aes(x = cyl, y = mpg))
+```

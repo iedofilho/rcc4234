@@ -1,0 +1,780 @@
+---
+title: "Catch Me if You ~~Can~~ Match"
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    toc: true
+    toc-title: "Sumário"
+editor: visual
+toc: true
+---
+
+![](images/ciym.png)
+
+
+Hoje o tópico é Manipulação de *Strings*.
+
+*Rafa, mas a gente já não estudou uma aula sobre manipulação de bases de dados?*
+
+Sim, nós fizemos uma introdução ao `tidyverse`, mas nós não nos aprofundamos em problemas de mundo real que envolvem as *strings*.
+
+Por exemplo, sem rodeios: ***Strings*** **são sujas.** Elas costumam vir com espaços invisíveis, com *encoding* estranho e com caracteres quebrados. Às vezes, parece que estamos fazendo tudo certo em nível de código ao manipular *strings*, mas não percebemos, a olho nu, os problemas que acabei de elencar.
+
+Tentando deixar tudo mais claro, vamos conversar um pouco sobre *encoding*.
+
+# Encoding: O que é? Para que serve? Onde vive? O que come?
+
+<div>
+
+*É o desespero de todo o novato, serve para adiantar tempo servido no purgatório, vive nas profundezas das bases de dados, e se alimenta da alma de todo o aluno iniciante do PPGCC que se meta a programar.*
+
+</div>
+
+*Encoding* é, basicamente, a forma como o computador transforma texto em números. Simples assim.
+
+O computador não “entende” letras; ele entende *bytes*. Então, cada caractere que você vê, como A, ç ou, até mesmo um emoji 😊, é, por baixo dos panos, um número.
+
+Por exemplo, a letra "A" pode ser representada como:
+
+```{r}
+charToRaw("A")
+```
+
+e o código anterior retornará o valor `41`... **De forma direta, para o computador, "A" não é uma letra; é apenas um código.**
+
+Porém, o problema é que nem sempre existe um único padrão numérico para essa tradução. **Existem vários sistemas de *encoding*, como:**
+
+-   ASCII (mais antigo, limitado);
+-   Latin1 (muito comum em dados antigos no Brasil);
+-   UTF-8 (padrão atual, use sempre que possível).
+
+Logo, dado que há diferentes padrões, a mesma sequência de *bytes* pode representar caracteres diferentes dependendo do *encoding*.
+
+Por conta disso, um arquivo pode ter:
+
+```{r eval = F}
+"El Niño"
+```
+
+Porém, se o *encoding* for interpretado errado, você pode ver:
+
+```{r eval = F}
+"El NiÃ±o"
+```
+
+**E não, isso não é, necessariamente, um erro de digitação. Isso, provavelmente, é um erro de *encoding*!**
+
+Não sei se vocês estão conseguindo prever as consequências desse problema em sua completude. **Problemas com *encoding* poderiam quebrar tudo no seu *pipeline*!** Impossibilitariam comparações, filtros, testes lógicos, *joins*, modelos, gráficos... TUDO. Você acharia que tem o valor `"São Paulo"`, mas a base teria `"SÃ£o Paulo"`, e o R trataria isso como diferente.
+
+**Regra de Ouro: sempre que algo “parecer estranho” em texto, suspeite de *encoding*.**
+
+*Rafa, mas foi a minha mamãezinha que criou essa base de dados pra mim...*
+
+**NÃO CONFIE EM NINGUÉM! NEM NA BASE! NEM EM VOCÊ MESMO! TESTE TUDO!**
+
+Suponha a seguinte situação, em que estou forçando a utilização de um encoding impreciso para simular um problema relativo ao que estamos discutindo:
+
+```{r}
+#| message: false
+#| warning: false
+#| paged-print: false
+library(readr)
+
+suicidios_india <- read_csv("suicidios_india.csv",
+                            locale = locale(encoding = "ASCII"))
+```
+
+Veja como o R carregou o objeto `suicidios_india`:
+
+```{r}
+head(suicidios_india)
+```
+
+Perceberam o problema de encoding? Note valores como `"IngestC#o de inseticidas"`, em vez de `"Ingestão de inseticidas"`. Isso é um problema clássico de má especificação do *encoding*.
+
+O pacote `readr` vem com uma função interessante que tenta descobrir qual o melhor *enconding* para determinado arquivo `csv`: a função `guess_encoding()`:
+
+```{r}
+guess_encoding("suicidios_india.csv")
+```
+
+**Aqui, há a sugestão da utilização do *encoding* UTF-8. Porém, isso é só uma ajuda, mas não é bala de prata!**
+
+```{r}
+#| message: false
+#| warning: false
+#| paged-print: false
+suicidios_india <- read_csv("suicidios_india.csv",
+                            locale = locale(encoding = "UTF8"))
+```
+
+<br>
+
+Perceba a melhora:
+
+```{r}
+head(suicidios_india)
+```
+
+Poderíamos fazer o mesmo para uma *string* qualquer:
+
+```{r}
+x <- charToRaw("El NiÃ±o")
+
+guess_encoding(x)
+```
+
+Insisto: a `guess_encoding()` não é algo mágico, mas sim uma tentativa razoável de descobrir o melhor *encoding*.
+
+<br>
+
+# O que é uma *String*?
+
+A essa altura, você já deve saber que uma *string* é um texto. Exemplos:
+
+```{r}
+"Rafa"
+"Data Science"
+"123"
+```
+
+Sim, quando entre aspas, `"123"` é um texto, e não um número. Se você ainda não entendeu isso, sem exagero algum, você precisa voltar para a *Recipe 01*.
+
+Dito isso, eu também já espero que você saiba criar *strings*:
+
+```{r}
+nome <- "Rafa"
+frase <- 'Hoje tem aula'
+```
+
+E, como visto anteriormente, na prática, não há diferença entre usar aspas simples ou duplas no R. O que importa é a manutenção do paralelismo, isto é, se você começou uma *string* abrindo aspas simples, você vai terminá-la com aspas simples. Se o fez com aspas duplas, vai fechá-la com aspas duplas.
+
+Porém, as coisas começam a complicar quando existem aspas dentro de uma *string*. Observem a seguinte situação que, necessariamente, incorreria num erro:
+
+```{r eval = F}
+"Ele disse "Não contavam com a minha astúcia!""
+```
+
+O problema aqui é que o R entende que a *string* termina no segundo `"`, quebrando o código.
+
+Aqui, há duas soluções possíveis: ou você usa barras invertidas `\` (no R, se fala *escape*), ou você usa aspas simples dentro das aspas duplas (ou o oposto). Note:
+
+```{r}
+"Ele disse \"Não contavam com a minha astúcia!\""
+```
+
+ou
+
+```{r}
+'Ele disse "Não contavam com a minha astúcia!"'
+```
+
+Se você entendeu tudo até aqui, vamos para uma nova mensagem dos nossos patrocinadores: comumente, em *strings* grandes, há a presença de caracteres especiais que utilizam o *escape* (`\`), e precisamos ficar atentos a essas situações.
+
+<br>
+
+# Caracteres ~~Invisíveis~~ Especiais nas *Strings*
+
+Caracteres especiais que usam `\` aparecem **MUITO** em dados reais. Alguns exemplos comuns:
+
+```{r eval = F}
+"\n"  # quebra de linha
+"\t"  # tab
+"\\\\"  # barra invertida
+```
+
+*Rafa, eu copiei essas strings e rodei no R, mas o `\n` aparece como `\n`, e não como quebra de linha...*
+
+Sim! Esses caracteres especiais estão sempre camuflados! Aí você tentaria excluir o valor `\n` de determinado *corpus* textual, e `amarelo limão` viraria `amarelolimão`.
+
+Para observamos o comportamento real das representações dos códigos textuais, o tio Rafa recomenda a utilização da função `cat()`. Note:
+
+```{r}
+x <- "Oi! \nTudo bem?"
+```
+
+Se você pedir para ver o que está dentro do objeto `x` sem usar a função `cat()`:
+
+```{r}
+x
+```
+
+Porém, perceba como a `cat()` captura bem a representação do código:
+
+```{r}
+cat(x)
+```
+
+Também é possível utilizar a função `str_view()`, do pacote `stringr`:
+
+```{r}
+library(stringr)
+
+str_view(x)
+```
+
+Acho que vocês estão começando a entender que *strings* não são só texto. Elas são estruturas textuais com caracteres invisíveis. E, se você não enxerga o problema, provavelmente ele é um caractere invisível... Sim, esses caracteres são uma das principais causas de erro em limpeza de dados.
+
+Por outro lado, não é para sair do curso achando que os caracteres especiais são uma ameaça para a continuidade da vida na Terra. Eles podem ser utilizados como recurso e jogar a seu favor!
+
+Imagine um gráfico em que as *labels* dos eixos sejam muito grandes:
+
+```{r}
+#| message: false
+#| warning: false
+#| paged-print: false
+library(tidyverse)
+
+# Criando um dataset fictício chamado dados:
+
+dados <- data.frame(status =  c("Indivíduos que não têm veículo",
+                                "Indivíduos que possuem um veículo",
+                                "Indivíduos que possuem dois veículos",
+                                "Indivíduos que possuem três, ou mais, veículos"),
+                    qtde = c(52, 31, 10, 1))
+
+# Plotando o objeto dados:
+dados |> 
+  ggplot(aes(x = status, y = qtde)) +
+  geom_col() +
+  theme_minimal()
+```
+
+Agora observe o que acontece ao utilizar `\n` para quebrar as linhas:
+
+```{r}
+# Criando um dataset fictício chamado dados:
+
+dados <- data.frame(status =  c("Indivíduos que não têm \n veículo",
+                                "Indivíduos que possuem \n um veículo",
+                                "Indivíduos que possuem \n dois veículos",
+                                "Indivíduos que possuem \n três, ou mais, veículos"),
+                    qtde = c(52, 31, 10, 1))
+
+# Plotando o objeto dados:
+dados |> 
+  ggplot(aes(x = status, y = qtde)) +
+  geom_col() +
+  theme_minimal()
+```
+
+Bem mais elegante, certo? E outra: quem domina *strings* não só limpa dados. Quem domina *strings* melhora comunicação!
+
+# Espaços Invisíveis nas *Strings*
+
+A existência de espaços invisíveis nas *strings* é outro problema clássico no processo de tratamento de dados. Vamos começar abrindo um *dataset* que contemple essa situação:
+
+```{r}
+#| message: false
+#| warning: false
+#| paged-print: false
+tickers <- read_delim("tickers.csv",
+                      delim = ";")
+```
+
+À primeira vista, está tudo lindo:
+
+```{r}
+tickers
+```
+
+O verdadeiro terror começa quando queremos filtrar algo. Suponhamos que desejamos filtrar nossos dados mantendo apenas as empresas do setor `healthcare`:
+
+```{r}
+tickers |> 
+  filter(setor == "healthcare")
+```
+
+e o R responde que nenhum dado corresponde ao filtro.
+
+<br>
+
+*Rafa, que bruxaria foi essa?*
+
+<br>
+
+**Se você olhar a base, claramente existem empresas do setor `healthcare`. Então por que o filtro não funciona?**
+
+Simples: **o problema não está no que você vê; e sim, está no que você não vê.** Nesse caso, são os tais espaços invisíveis.
+
+Vamos inspecionar os valores únicos da variável `setor`:
+
+```{r}
+unique(tickers$setor)
+```
+
+Perceberam o tamanho da bagunça que pode existir, mesmo num *dataset* tão pequeno?
+
+Esses espaços invisíveis podem estar em qualquer lugar:
+
+-   no início: `" healthcare"`;
+-   no final: `"healthcare "`;
+-   ou até no meio das strings (o pior dos cenários).
+
+Daí, o operador `==` parece não funcionar corretamente porque ele **exige correspondência exata!** E para o R, definitivamente, `"     healthcare"` não é a mesma coisa que `"healthcare"`!
+
+A maior parte desse tipo de problema pode ser resolvida com a função `str_trim()`, do pacote `stringr`. Ela remove espaços no início e no fim de cada *string*:
+
+```{r}
+solucao1 <- tickers |> 
+  mutate(setor = str_trim(setor))
+```
+
+Agora, podemos filtrar as empresas do setor `healthcare`:
+
+```{r}
+solucao1 |> 
+  filter(setor == "healthcare")
+```
+
+E se o tio Rafa quisesse o filtro para o setor de basic materials?
+
+```{r}
+solucao1 |> 
+  filter(setor == "basic materials")
+```
+
+Vocês já devem ter notado que, na nossa base, está assim: `"basic   materials"`.
+
+A função `str_trim()` não altera espaços internos; ela apenas remove os das bordas. Para lidar com múltiplos espaços no meio da string, usamos `str_squish()`:
+
+```{r}
+solucao2 <- solucao1 |> 
+  mutate(setor = str_squish(setor))
+```
+
+Agora sim:
+
+```{r}
+solucao2 |> 
+  filter(setor == "basic materials")
+```
+
+Garotada, espaço é caractere. E caractere quebra código.
+
+<br>
+
+# Padronizando Textos
+
+Outro problema comum no tratamento de dados textuais se remete à característica *case sensitive* do R.
+
+Lembrem-se:
+
+```{r}
+"Fea" == "FEA"
+"fea" == "FEA"
+```
+
+É comum que, no tratamento dos dados, tenhamos a intenção de deixar todas as letras em minúsculas ou em maiúsculas.
+
+Para isso, utilizamos as funções `str_to_lower()` e `str_to_upper()`, do pacote `stringr`.
+
+A função `str_to_lower()` transforma todos os caracteres da *string* em minúsculas; `str_to_upper()`, em maiúsculas:
+
+```{r}
+str_to_lower("Fea")
+
+str_to_upper("Fea")
+```
+
+Outro aspecto importante na padronização textual é a remoção de acentos (ou, mais precisamente, a transliteração de caracteres, como Ç ou Ñ).
+
+Essa demanda pode ser resolvida com a função `stri_trans_general()`, do pacote `stringi`:
+
+```{r}
+library(stringi)
+
+textos <- c("São Paulo", "João", "München", "façade", "straße")
+
+stri_trans_general(textos, "Latin-ASCII")
+```
+
+Então, se você pretende comparar textos (filtros, *joins*, agrupamentos), padronize antes a caixa (*lower* ou *upper*), os espaços (*squish*) e os acentos (Latin-ASCII).
+
+# Detectando Padrões Textuais
+
+Em regra, quando queremos verificar a presença de padrões textuais, a utilização da função `str_detect()`, do pacote `stringr`, costuma resolver nossos problemas.
+
+Essa função permite diferentes níveis de complexidade na definição de padrões:
+
+-   você pode buscar um texto exato;
+-   um trecho de texto;
+-   ou padrões mais sofisticados com expressões regulares (regex).
+
+Vamos do mais fácil para o mais complexo, ok?
+
+## Buscando padrões simples
+
+Suponham um vetor (e poderia ser um *dataset*) que contenha alguns nomes de demonstrações contábeis:
+
+```{r}
+demonstracoes_contabeis <- c(
+  "livro caixa", 
+  "livro diário", 
+  "demonstração das mutações do patrimônio líquido (DMPL)",
+  "demonstração do valor adicionado (DVA)",
+  "demonstração do resultado do exercício (DRE)",
+  "demonstração dos fluxos de caixa (DFC)",
+  "notas explicativas",
+  "DMPL",
+  "DVA",
+  "DRE",
+  "DFC"
+)
+```
+
+Se você quiser buscar o trecho `caixa`:
+
+```{r}
+str_detect(
+  string = demonstracoes_contabeis,
+  pattern = "caixa"
+)
+```
+
+A função str_detect() retorna `TRUE` para as posições `1` e `6`, porque ambas contêm o trecho `caixa`.
+
+E se buscarmos a sigla `dmpl`?
+
+```{r}
+str_detect(
+  string = demonstracoes_contabeis,
+  pattern = "dmpl"
+)
+```
+
+Todos os resultados serão `FALSE`, porque a função é *case sensitive*.
+
+E se buscássemos a sigla `DFC`?
+
+```{r}
+str_detect(
+  string = demonstracoes_contabeis,
+  pattern = "DFC"
+)
+```
+
+Retorna `TRUE` para as posições `6` e `11`, pois ambas contêm o padrão `DFC`.
+
+## Buscando trechos de texto
+
+Também podemos buscar apenas partes de palavras.
+
+Por exemplo, o padrão `mut`:
+
+```{r}
+str_detect(
+  string = demonstracoes_contabeis,
+  pattern = "mut"
+)
+```
+
+O único resultado positivo ocorre na posição `3`, devido à presença do trecho `mut` em `mutações`.
+
+## Expressões regulares (regex)
+
+Expressões regulares (regex) são uma forma de descrever padrões em texto. Simples assim: você escreve uma regra, e o computador verifica se aquele padrão aparece ou não em uma *string*.
+
+Neste momento, vamos continuar focando na função `str_detect()` do pacote `stringr`, porque ela responde a uma única pergunta: **“esse padrão aparece aqui?”**
+
+A resposta dessa função vem sempre como:
+
+-   `TRUE`: encontrou o padrão
+-   `FALSE`: não encontrou o padrão
+
+Esse comportamento da `str_detect()` é extremamente útil porque permite filtrar bases de dados, criar variáveis indicadoras e construir regras de limpeza e validação.
+
+Se você trabalha com dados reais contábeis ou financeiros, isso já resolve uma quantidade absurda de problemas!
+
+**Não vou mentir: regex está longe de ser trivial,** e você não vai dominar isso em uma aula.
+
+Sendo bem direto, a depender do tipo de análise que você faz, você pode passar muito tempo sem precisar usar regex. Agora, **se você trabalha com relatórios, análise textual, dados qualitativos ou limpeza de bases com muitas *strings*, então você vai precisar disso.** Não tem muito para onde fugir.
+
+Vou começar apresentando os principais operadores de regex:
+
+| Operador | Significado                                         |
+|----------|-----------------------------------------------------|
+| `^`      | começa com                                          |
+| `$`      | termina com                                         |
+| `.`      | qualquer caractere (um único)                       |
+| `|`      | ou                                                  |
+| `+`      | uma ou mais ocorrências do padrão anterior          |
+| `*`      | zero ou mais ocorrências do padrão anterior         |
+| `?`      | zero ou uma ocorrência do padrão anterior           |
+| `\\d`    | dígito (0–9) - pelo menos um número                 |
+| `\\D`    | não dígito - qualquer caractere que não seja número |
+| `\\s`    | espaço (inclui tab e quebra de linha)               |
+| `\\S`    | não espaço                                          |
+| `\\w`    | letra, número ou `_`                                |
+| `\\W`    | qualquer coisa que não seja letra, número ou `_`    |
+
+Antes de propormos alguns exemplos do uso desses operadores, lembrem-se da seguinte regra: **todo operador atua sobre o elemento imediatamente anterior!** Se você não internalizar isso, vai errar regex o tempo todo.
+
+Também gostaria de adiantar outros três operadores que permitem o estabelecimento de estruturas mais avançadas:
+
+| Operador | Significado                      |
+|----------|----------------------------------|
+| `()`     | agrupar padrões                  |
+| `[]`     | conjunto de caracteres possíveis |
+| `{}`     | quantidade exata de repetições   |
+
+Para os exemplos a seguir, vamos trabalhar com um vetor de *strings*. Pense nisso como uma coluna de um *dataset* real que você precisa limpar, validar ou filtrar. Vamos lá?
+
+```{r}
+string_aleatoria <- c("(11) 91234-5678",
+                      "(16) 3210-4599",
+                      "shaolinmatadordeporco@gmail.com",
+                      "flavinhodopneu@hotmail.com",
+                      "marimbondoapaixonado@usp.br",
+                      "dfc",
+                      "dre",
+                      "tataravó",
+                      "t",
+                      "adhha55675kacomJDSK",
+                      ".com294824sejfnkefskl",
+                      "avenida dos bandeirantes, 3900, vila monte alegre",
+                      "demonstração das mutações do patrimônio líquido (dmpl)",
+                      "demonstração do valor adicionado (dva)",
+                      "demonstração do resultado do exercício (dre)",
+                      "demonstração dos fluxos de caixa (dfc)",
+                      "ppgcc",
+                      "ppgao",
+                      "ppge",
+                      "14040-905",
+                      "14000100",
+                      "talita alves",
+                      "thalita souza",
+                      "talitha castro",
+                      "thalitha oliveira"
+                      )
+```
+
+Nós já aprendemos a detectar trechos textuais simples, certo?
+
+Por exemplo, se o interesse fosse encontrar tudo o que contém o trecho `"demons"` (sem nenhuma apologia ou trocadilho), poderíamos fazer o seguinte:
+
+```{r}
+str_detect(string_aleatoria,
+           "demons")
+```
+
+Como a `str_detect()` retorna apenas `TRUE` ou `FALSE`, também poderíamos usar esse resultado para filtrar somente os casos em que o padrão foi encontrado:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "demons") == T)
+```
+
+Até aqui, tudo bem!
+
+O problema é que esse tipo de busca funciona apenas quando sabemos exatamente qual trecho textual queremos encontrar.
+
+Neste exemplo, a estratégia até parece razoável, porque as demonstrações contábeis escritas por extenso realmente contêm o trecho `"demons"`. Porém, se a nossa intenção fosse capturar todos os elementos que representam demonstrações contábeis, essa técnica falharia. Isso porque os elementos `"dfc"` e `"dre"` também deveriam ser considerados, mas seriam ignorados por não conterem esse trecho.
+
+Diante disso, alguém poderia pensar em uma nova estratégia: buscar simplesmente a presença da letra `"d"`.
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "d") == T)
+```
+
+Só que agora aconteceu o contrário: em vez de poucos casos, passamos a capturar casos demais.
+
+A letra `"d"` aparece em uma enorme variedade de contextos, muitos dos quais não têm qualquer relação com o que realmente queremos identificar. Em outras palavras, a busca ficou ampla demais e perdeu precisão.
+
+**É exatamente nesse ponto que as regex começam a fazer diferença. Elas permitem construir padrões mais específicos, reduzindo a bagunça e aumentando a chance de encontrar apenas aquilo que realmente importa!**
+
+**Antes de seguir, vale a pena olhar novamente as tabelas de operadores!**
+
+Talvez, se construíssemos uma regex que capture apenas as strings que se iniciam pela letra `"d"`, teríamos uma abordagem mais inteligente.
+
+Se você prestou atenção na tabela de operadores, deve ter percebido que o símbolo `^` indica início da *string*. Logo, a regex que buscamos é simplesmente:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^d") == T)
+```
+
+Aqui, estamos sendo bem específicos: queremos apenas as strings que começam com a letra `"d"`. É exatamente isso que a combinação `^d` representa.
+
+**Agora, e se quiséssemos filtrar apenas os e-mails?**
+
+Uma primeira ideia seria buscar tudo que termina com `".com"`:
+
+```{r}
+str_detect(string_aleatoria, 
+           ".com")
+```
+
+**Mas aqui temos um problema importante.**
+
+O `.` em regex **não significa ponto literal.** Ele representa qualquer caractere. Noutras palavras, essa expressão não está buscando exatamente `".com"`, mas sim qualquer caractere seguido de `"com"`.
+
+Na prática, isso pode gerar resultados inesperados. Veja:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, ".com") == T)
+```
+
+**Se queremos buscar um ponto literal, precisamos escapar (`\\`) esse caractere:**
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\.com") == T)
+```
+
+**Aqui, o \\. indica que queremos um ponto literal, e não “qualquer caractere”.**
+
+Só que ainda temos um problema. A observação `".com294824sejfnkefskl"` continua aparecendo no resultado. Isso acontece porque ainda estamos capturando qualquer ocorrência de `".com"`, independentemente da sua posição na *string*.
+
+Se quisermos apenas os casos em que `".com"` aparece no final da *string*, precisamos usar o operador `$`:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\.com$") == T)
+```
+
+Agora sim, estamos sendo mais precisos: queremos apenas *strings* que terminam com `".com"`.
+
+Legal, né?
+
+Só que ainda temos outro problema. O e-mail `"marimbondoapaixonado@usp.br"` não foi capturado, porque ele não termina com `".com"`.
+
+Se quisermos considerar múltiplos domínios, podemos usar o operador `|` combinado com `()`. Note:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\.(com|br)$") == T)
+```
+
+**E se quiséssemos buscar todas as variações do nome Talita?**
+
+Uma primeira ideia seria buscar tudo que começa com a letra `"t"`:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^t") == T)
+```
+
+Aqui, o operador `^` indica que estamos interessados apenas nas strings que se iniciam pela letra `t`.
+
+Bom, algumas coisas indesejáveis foram retornadas. Note, por exemplo, o elemento `"t"`.
+
+**Se o nosso interesse for encontrar nomes, esse caso não faz muito sentido.** Uma forma simples de resolver isso seria exigir que exista pelo menos um caractere após o `t`. Para isso, podemos usar o operador `.`:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^t.") == T)
+```
+
+Agora, a regex `^t`. significa: *strings* que começam com `t` e possuem pelo menos mais um caractere. Com isso, `"t"` deixa de ser capturado.
+
+Percebe a utilidade do operador `.`? Ele nos permite exigir a existência de um caractere, sem precisar especificar qual é esse caractere.
+
+Porém, mesmo assim, ainda estamos longe do nosso objetivo. Queremos capturar todas as variações do nome Talita, como:
+
+-   `talita`
+-   `thalita`
+-   `talitha`
+-   `thalitha`
+
+E a regex `^t.` continua ampla demais, porque ela captura muito mais coisas do que gostaríamos.
+
+Para resolver isso, precisaremos construir uma regex um pouco mais específica. Note:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^th?alith?a") == T)
+```
+
+A regex `^th?alith?a` pode parecer estranha à primeira vista, mas ela segue uma lógica bem simples, na verdade.
+
+Lembre-se que o operador `?` significa zero ou uma ocorrência do padrão imediatamente anterior. Assim, `th?` pode ser `"t"` ou `"th"`; e `h?` (no final de `talith?a`) indica poder ter `"h"`, ou não.
+
+No mesmo sentido, o operador `*` também poderia ser interessante em situações em que as pessoas abusam da quantidade de caracteres repetidos em *strings*.
+
+**E se quiséssemos capturar apenas as observações que contêm números?** Bastaria usar a regex `\\d`. Veja:
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\d") == T)
+```
+
+Aqui, `\\d` representa qualquer dígito (0–9). Logo, estamos capturando todas as *strings* que possuem pelo menos um número.
+
+**E se quiséssemos capturar apenas as observações que NÃO contêm números?** 
+
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\D") == T)
+```
+**Aqui precisamos tomar cuidado.** A regex `\\D` significa qualquer caractere que não seja número.
+
+Por assim ser, ela verifica se existe algum caractere não numérico na string. **Então, essa segunda abordagem não garante ausência de números.**
+
+Portanto, se queremos *strings* sem números, precisamos dizer: “não pode existir nenhum dígito”:
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(!str_detect(string_aleatoria, "\\d") == T)
+```
+
+Percebam que `\\d` e `\\D` **não são opostos perfeitos no contexto de *string* inteira.** De novo: `\\d` significa “existe número”; `\\D` significa “existe algo que não é número”.
+
+
+Antes de avançarmos gostaria de falar rapidamente sobre o operador `[]`. O operador `[]` serve para indicar um conjunto de caracteres possíveis.
+
+Em vez de dizer “exatamente isso”, você diz: “qualquer um desses aqui”, inclusive considerando intervalos. Exemplos:
+
+
+- `"[0-9]"`: equivalente a `\\d`, isto é, qualquer dígito entre 0 e 9
+- `"[a-z]"`: qualquer letra minúscula entre a e z
+- `"[A-Z]"`: qualquer letra maiúscula entre A e Z
+- `"^[aeiou]"`: qualquer string iniciada por vogal
+
+Porém, penso que as regex ficam mais interessantes quando utilizamos os quantificadores `{}`. Exemplos:
+
+- `"a{3}"`: exatamente 3 letras a
+- `"a{2,4}"`: entre 2 a 4 letras a
+- `"a{2,}"`: pelo menos 2 ocorrências da letra a
+
+**Vamos supor que desejemos identificar os CEPs no nosso objeto `string_aleatoria`**. Sabemos que um CEP possui 8 dígitos. Então, uma primeira tentativa seria:
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "\\d{8}") == T)
+```
+Essa abordagem captura corretamente o CEP `"14000100"`. Perceba, porém, que o CEP `"14040-905"` não foi capturado, e isso acontece porque há um hífen interrompendo a sequência de 8 dígitos.
+
+Para resolver isso, precisamos construir uma regex que permita a presença opcional do hífen. Uma possibilidade é: Algo como `"^\\d{5}-?\\d{3}$"`.
+
+A regex `"^\\d{5}-?\\d{3}$"` diz o seguinte: 1) capture uma sequência que comece exatamente com 5 dígitos (`"^\\d{5}`); 2) após isso, o hífen pode aparecer, ou não (`-?`); 3) por fim, capture uma próxima sequência de 3 dígitos (`\\d{3}`); 4) a sequência deve terminar aqui (`$`) 
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^\\d{5}-?\\d{3}$") == T)
+```
+
+Podemos aplicar exatamente a mesma lógica para outros padrões estruturados, como números telefônicos:
+```{r}
+string_aleatoria |> 
+  data.frame() |> 
+  filter(str_detect(string_aleatoria, "^\\(\\d{2}\\) \\d{4,5}-\\d{4}$") == T)
+```
+
+Tente explicar o porquê a regex anterior funciona!
+
