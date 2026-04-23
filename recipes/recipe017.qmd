@@ -9,10 +9,10 @@ format:
 editor: visual
 toc: true
 ---
+
 ![](images/bm.png)
 
 Tudo bem, pessoal? A aula de hoje será sobre dados espaciais.
-
 
 Sendo direto, hoje vocês vão aprender a fazer mapas no R, com dados reais. Por exemplo, o seguinte:
 
@@ -62,8 +62,8 @@ shp_centro_oeste |>
   )
 
 ```
-Como diria o Jason Sexta-Feira 13, vamos por partes.
 
+Como diria o Jason Sexta-Feira 13, vamos por partes.
 
 ## Shapefiles
 
@@ -71,31 +71,31 @@ Existem diversas maneiras de se construir mapas no R. A mais simples e, para os 
 
 Um *shapefile* é, essencialmente, um arquivo (na verdade, um conjunto de arquivos) que guarda duas coisas ao mesmo tempo:
 
-- a geometria do mapa (as formas: municípios, estados, regiões, etc.);
-- os atributos associados a essas áreas (nomes, códigos, indicadores, etc.).
+-   a geometria do mapa (as formas: municípios, estados, regiões, etc.);
+-   os atributos associados a essas áreas (nomes, códigos, indicadores, etc.).
 
 Noutras palavras, ele já traz consigo a estrutura espacial pronta.
 
 Se você foi curioso, deve ter percebido que o tio Rafa adicionou um diretório chamado `shapefile_centrooeste`. Quando você abrir essa pasta, encontrará 4 arquivos, com extensões diferentes, e cada um deles cumpre uma função específica:
 
-- `*.shp`: armazena a geometria, ou seja, o desenho do mapa;
-- `*.shx`: funciona como um índice, permitindo acesso rápido às geometrias;
-- `*.dbf`: contém a tabela de atributos, isto é, as informações associadas a cada unidade espacial;
-- `*.prj`: define o sistema de coordenadas (como o mapa está posicionado na Terra).
+-   `*.shp`: armazena a geometria, ou seja, o desenho do mapa;
+-   `*.shx`: funciona como um índice, permitindo acesso rápido às geometrias;
+-   `*.dbf`: contém a tabela de atributos, isto é, as informações associadas a cada unidade espacial;
+-   `*.prj`: define o sistema de coordenadas (como o mapa está posicionado na Terra).
 
-**ATENÇÃO:** um *shapefile* só funciona corretamente quando esses arquivos estão juntos.
-Se você mover, apagar ou renomear algum deles, o mapa pode simplesmente deixar de funcionar.
+**ATENÇÃO:** um *shapefile* só funciona corretamente quando esses arquivos estão juntos. Se você mover, apagar ou renomear algum deles, o mapa pode simplesmente deixar de funcionar.
 
 Para carregar um *shapefile*, recomendo a função `st_read()`, do pacote `sf`:
+
 ```{r}
 shp_centro_oeste <- st_read("shapefile_centrooeste/centrooeste_shapefile.shp")
 ```
+
 Perceberam a mensagem anterior no carregamento do *shapefile*?
 
 As `466 features and 3 fields` mencionadas dizem respeito a 466 unidades espaciais (municípios, no caso), a 3 variáveis (colunas de dados). Na veeeerdaaaade, há uma quarta coluna não considerada chamada `geometry`, que indica todo o contorno de cada linha considerando suas respectivas longitudes e latitudes. Sim, cada linha contém o desenho de uma unidade espacial que, no nosso caso, diz respeito a um município!
 
 A `Geometry type: MULTIPOLYGON` significa que cada unidade espacial é formada por um ou mais polígonos. Um município pode ter ilhas, áreas desconectadas e recortes territoriais. Então, ele não é um único polígono simples. E mais: cada linha do nosso dado não é um número; é um desenho (de um município, nesse caso).
-
 
 Já `Dimension: XY` indica que o objeto se orienta de forma bidimensional - no caso, por longitude e latidue. Porém, poderia haver altitude (`Z`) ou tempo (`M`).
 
@@ -108,58 +108,64 @@ Dito isso, podemos afirmar que o objeto `shp_centro_oeste` contém os limites ge
 Mais do que isso, ao carregar o objeto `shp_centro_oeste`, estamos trabalhando com um conjunto de dados que se comporta como um *data frame*, mas com uma diferença fundamental: ele possui uma coluna especial chamada *geometry*, que armazena a forma espacial de cada observação.
 
 É justamente essa coluna que permite ao R “desenhar” o mapa automaticamente, sem que precisemos reconstruir coordenadas manualmente. Observe:
+
 ```{r}
 names(shp_centro_oeste)
 ```
 
 Nesse caso específico, temos um id para cada município (`ID`), um código de 7 dígitos arbitrado pelo IBGE que identifica o município (`CD_GEOCODM`), o nome do município (`NM_MUNICIP`), e a já discutida coluna `geometry`.
 
-
 Dito isso, segue uma visualização básica do nosso *shapefile*:
+
 ```{r}
 shp_centro_oeste |> 
   ggplot() +
   geom_sf()
 ```
+
 É a camada `geom_sf()` a responsável por plotar o nosso *shapefile*. Além disso,repare que, diferentemente de outros gráficos no `ggplot2`, não precisamos declarar explicitamente `aes(x, y)`. Isso acontece porque essas informações já estão embutidas na coluna *geometry* do objeto espacial.
 
 Em outras palavras, ao utilizar `geom_sf()`, o R automaticamente interpreta as coordenadas necessárias para desenhar o mapa, a partir da geometria armazenada em cada observação.
 
 Porém, ao mesmo tempo, nosso objeto `shp_centro_oeste` é um *dataset*:
+
 ```{r}
 str(shp_centro_oeste)
 ```
 
 E isso nos permite conectar dados para serem analisados! Vamos carregar o objeto `dados_centro_oeste`, que contém informações sobre a vulnerabilidade à pobreza na região Centro-Oeste, segundo o censo de 2010:
+
 ```{r}
 load("dados_centro_oeste.RData")
 ```
 
 O objeto `dados_centro_oeste` é um *data frame* comum:
+
 ```{r}
 summary(dados_centro_oeste)
 ```
 
-
 Note que o objeto `dados_centro_oeste` não possui nenhuma informação espacial; contém apenas variáveis numéricas e categóricas.
 
 Ainda assim, podemos combiná-lo com o objeto `shp_centro_oeste`, desde que exista uma variável em comum que identifique corretamente cada observação. No nosso caso, utilizamos o código do município (`CD_GEOCODM`):
+
 ```{r}
 shp_centro_oeste <- shp_centro_oeste |> 
   left_join(dados_centro_oeste, by = "CD_GEOCODM")
 ```
 
 Observe o resultado:
+
 ```{r}
 summary(shp_centro_oeste)
 ```
 
 Agora, o objeto `shp_centro_oeste` contém tanto a geometria quanto as variáveis associadas, isto é, temos um conjunto de dados completo para análise espacial.
 
-
 A partir desse momento, o objeto continua sendo um *data frame*. A única diferença é que ele possui uma coluna adicional chamada *geometry*.
 
 Isso significa que podemos utilizá-lo não apenas para mapas, mas também para análises estatísticas tradicionais, como, por exemplo, para explorar a distribuição da variável *poverty*:
+
 ```{r}
 library(gridExtra)
 
@@ -184,7 +190,8 @@ grid.arrange(histograma1, boxplot1)
 
 ```
 
-Porém, se a ideia é  plotagem espacial, podemos começar com uma sintaxe básica:
+Porém, se a ideia é plotagem espacial, podemos começar com uma sintaxe básica:
+
 ```{r}
 shp_centro_oeste |> 
   ggplot() +
@@ -194,9 +201,11 @@ shp_centro_oeste |>
                        breaks = c(10, 30, 50, 70, 90)) +
   theme_bw()
 ```
+
 Aqui a gente deixa de olhar para distribuição em gráfico e passa a olhar para distribuição no espaço. O que fizemos se chama **mapa temático.**
 
 É de boa prática que mapas temáticos sejam acompanhados de uma escala e da indicação do norte.
+
 ```{r}
 library(ggspatial)
 
@@ -230,6 +239,7 @@ shp_centro_oeste |>
     )
   )
 ```
+
 A escala é adicionada pela função `annotation_scale()`, do pacote `ggspatial`. Já o argumento `location = "br"` indica a posição da escala no mapa (*bottom right*, ou seja, canto inferior direito), enquanto `width_hint = 0.3` controla o tamanho relativo da barra de escala.
 
 De forma análoga, a função `annotation_north_arrow()`, também do pacote `ggspatial`, adiciona a indicação do norte ao mapa. O argumento `location = "tr"` posiciona a bússola no canto superior direito (*top right*).
@@ -239,19 +249,23 @@ De forma análoga, a função `annotation_north_arrow()`, também do pacote `ggs
 Às vezes, nossa intenção é trabalhar com apenas uma parte de um shapefile, e não com ele completo. Suponha que você tenha um shapefile da região Centro-Oeste (`shp_centro_oeste`), mas queira analisar apenas um único estado.
 
 Como cada observação possui atributos associados (como o nome do estado), podemos simplesmente filtrar o conjunto de dados, exatamente como faríamos com um *data frame* comum:
+
 ```{r}
 shp_goias <- shp_centro_oeste |> 
   filter(state == "GO")
 ```
 
 Nesse exemplo, estamos selecionando apenas os municípios pertencentes ao estado de Goiás, veja:
+
 ```{r}
 shp_goias |> 
   ggplot() +
   geom_sf() +
   theme_bw()
 ```
+
 Aqui,estamos selecionando apenas os municípios pertencentes ao estado do Mato Grosso:
+
 ```{r}
 shp_matogrosso <- shp_centro_oeste |> 
   filter(state == "MT")
@@ -262,39 +276,45 @@ shp_matogrosso |>
   theme_bw()
 ```
 
-
 Perceba que esse tipo de recorte funciona quando você possui uma variável que identifica o que deseja selecionar. Se a sua intenção for recortar o mapa a partir de uma área geográfica arbitrária (por exemplo, um retângulo ou uma região desenhada), será necessário utilizar funções espaciais, `como st_intersection()`, que não serão abordadas neste momento.
 
 Um ponto importante é que a abordagem baseada em `filter()` preserva todas as características espaciais do objeto, incluindo o sistema de coordenadas (CRS). Ou seja, continuamos trabalhando com um objeto espacial válido.
 
 Isso nos permite realizar operações espaciais diretamente. Por exemplo, **podemos calcular a área de cada polígono que compõe o estado de Goiás utilizando a função `st_area()`:**
+
 ```{r}
 shp_goias |> 
   st_area()
 ```
 
 **Podemos calcular as distâncias entre cada polígono com a função `st_distance()`:**
+
 ```{r}
 st_distance(shp_goias[1, ], shp_goias[2, ])
 ```
+
 **Podemos verificar quais municípios fazer fronteiras, considerando dois shapefiles distintos, com a função `st_intersects()`:**
+
 ```{r}
 st_intersects(shp_goias, shp_matogrosso)
 ```
-Perceba, porém, que a função `st_intersects()` não retorna `TRUE`/`FALSE` direto.
-Ela retorna uma lista de relações espaciais. Se você salvar o resultado da utilização de`st_intersects()` num objeto, verá que para cada geometria de `shp_goias`, ela diz quais geometrias de `shp_matogrosso` ela intercepta.
+
+Perceba, porém, que a função `st_intersects()` não retorna `TRUE`/`FALSE` direto. Ela retorna uma lista de relações espaciais. Se você salvar o resultado da utilização de`st_intersects()` num objeto, verá que para cada geometria de `shp_goias`, ela diz quais geometrias de `shp_matogrosso` ela intercepta.
 
 Dito isso, quando aparece `(empty)`, no exemplo em questão, significa que o primeiro município de Goiás não intercepta nenhum de Mato Grosso. Obviamente, a maior parte dos municípios não faz fronteira com outro estado!
 
 No exemplo dado, a lista resultante da aplicação da função `st_intersects()` terá 246 elementos (porque temos 246 municípios em GO), e cada elemento conterá índices dos municípios de MT que intersectam.
 
 Exemplo hipotético:
+
 ```{r eval = F}
 5: 3 7
 ```
+
 Por exemplo, o resultado anterior indicaria que o município 5 de GO intersecta municípios 3 e 7 de MT.
 
 Se você quiser uma abordagem que gere um resultado mais palpável, podemos fazer assim:
+
 ```{r}
 fronteira <- lengths(st_intersects(shp_goias, shp_matogrosso)) > 0
 
@@ -304,28 +324,34 @@ shp_goias_fronteira <- shp_goias[fronteira, ]
 O tio Rafa vai explicar o que ocorreu aqui. Como já disse, o uso de `st_intersects()` era uma lista em que, para cada município de Goiás, o R verificará se ele encosta em algum município do Mato Grosso.
 
 Já a função `lengths()` (não confundir com `length()`) conta quantos elementos existem em cada posição da lista. Veja:
+
 ```{r}
 lengths(st_intersects(shp_goias, shp_matogrosso))
 ```
+
 Posto isso, quando fazemos `lengths(st_intersects(shp_goias, shp_matogrosso)) > 0` estamos utilizando a coerção a nosso favor e transformando os resultados em valores lógicos `TRUE`/`FALSE`. Noutras palavras, o valor `FALSE` (que era `0`) indica que um município de GO não toca em algum município de MT; já o valor `TRUE` (qualquer coisa que era maior do que `0`) indica quem faz fronteira. E tudo isso foi salvo no objeto `fronteira`.
 
 Por fim, `shp_goias_fronteira <- shp_goias[fronteira, ]` é R puro lá das Recipes 04 e 05. Nessa declaração estamos dizendo que queremos apenas as linhas onde `fronteira == TRUE`.
 
 O resultado é o seguinte:
+
 ```{r}
 ggplot() +
   geom_sf(data = shp_goias, fill = "gray90") +
   geom_sf(data = shp_goias_fronteira, fill = "red") +
   theme_void()
 ```
+
 ### Conectando Shapefiles
 
 Por outro lado, se a ideia for ter um único objeto com GO + MT, mantendo os municípios separados, podemos comandar o seguinte:
+
 ```{r}
 shp_go_mt <- rbind(shp_goias, shp_matogrosso)
 ```
 
 Observe:
+
 ```{r}
 shp_go_mt |> 
   ggplot() +
@@ -340,6 +366,7 @@ Vamos supor que desejemos conectar *shapefiles* com diferentes sistemas de coord
 Esse tipo de situação é comum, especialmente quando os dados são obtidos de fontes distintas. Cada *shapefile* pode ter sido construído com um sistema de referência diferente, o que impede a sobreposição correta das geometrias.
 
 Vamos simular o problema capturando um *shapefile* de um mapa mundi, depois recortar o Brasil e, por fim, tentar conectá-lo ao objeto `shp_centro_oeste`:
+
 ```{r}
 library(rnaturalearth)
 library(sf)
@@ -353,6 +380,7 @@ shp_mundo |>
 ```
 
 A partir do objeto `shp_mundo`, vamos selecionar apenas o Brasil:
+
 ```{r}
 shp_brasil <- shp_mundo |> 
   filter(iso_a3 == "BRA")
@@ -364,11 +392,13 @@ shp_brasil |>
 ```
 
 Agora, vamos tentar conectar os objetos `shp_brasil` e `shp_centro_oeste`:
+
 ```{r eval = F}
 shp_final <- rbind(shp_brasil, shp_centro_oeste)
 ```
 
 Houve um erro, certo? Note:
+
 ```{r eval = F}
 # Não comandar
 
@@ -378,6 +408,7 @@ Erro: arguments have different crs
 O problema não está na função `rbind()` em si. O problema é que os dois objetos possuem sistemas de coordenadas diferentes (CRS distintos).
 
 Você pode verificar isso explicitamente:
+
 ```{r}
 st_crs(shp_brasil)
 ```
@@ -386,10 +417,10 @@ st_crs(shp_brasil)
 st_crs(shp_centro_oeste)
 ```
 
-
 **No fim do dia, isso significa que as coordenadas dos dois objetos estão sendo interpretadas de formas diferentes no espaço.** Na prática, um pode estar em latitude/longitude (graus), enquanto o outro pode estar em um sistema projetado (metros). O resultado é que não é possível combiná-los diretamente.
 
 Uma possível solução é padronizar o CRS utilizando as funções `st_transform()` e `st_crs()`:
+
 ```{r}
 shp_brasil <- st_transform(shp_brasil, st_crs(shp_centro_oeste))
 ```
@@ -397,11 +428,13 @@ shp_brasil <- st_transform(shp_brasil, st_crs(shp_centro_oeste))
 O que fizemos no comando anterior foi transformar o objeto `shp_brasil` para o mesmo sistema de coordenadas do objeto `shp_centro_oeste`.
 
 Verifique:
+
 ```{r}
 st_crs(shp_brasil)
 ```
 
 Agora, ambos os objetos compartilham o mesmo CRS e podem ser combinados do ponto de vista espacial:
+
 ```{r eval = F}
 shp_final <- rbind(shp_brasil, shp_centro_oeste)
 ```
@@ -411,6 +444,7 @@ shp_final <- rbind(shp_brasil, shp_centro_oeste)
 Apesar de possuírem geometria, os objetos `shp_brasil` e `shp_centro_oeste` também são *data frames*, e a função `rbind()` exige que os objetos possuam o mesmo conjunto de colunas, o que não ocorre nesse caso.
 
 Uma forma simples de contornar esse problema é manter apenas a coluna `geometry` em ambos os objetos. Ao manter apenas a coluna geometry, descartamos todos os atributos associados aos dados, preservando exclusivamente a informação espacial:
+
 ```{r}
 shp_brasil2 <- shp_brasil |> 
   select(geometry)
@@ -422,6 +456,7 @@ shp_final <- rbind(shp_brasil2, shp_co2)
 ```
 
 Agora sim:
+
 ```{r}
 shp_final |> 
   ggplot() +
@@ -437,12 +472,12 @@ Não é minha intenção transformar este momento em uma aula de cartografia, at
 
 **Dito isso, minha recomendação é a seguinte: sempre que possível, utilizem *shapefiles* provenientes de uma mesma fonte.**
 
-
 ### Salvando *Shapefiles*
 
 Após manipularmos e analisarmos nossos dados espaciais, é comum que desejemos salvá-los para uso posterior ou compartilhamento.
 
 No pacote `sf`, utilizamos a função `st_write()` para exportar objetos espaciais para diferentes formatos, incluindo *shapefiles*. Primeiramente, vamos criar a pasta que receberá nosso *shapefile*:
+
 ```{r}
 dir.create("shapefiles_saida")
 ```
@@ -452,6 +487,13 @@ Depois, vamos utilizar a função `st_write()`:
 ```{r}
 st_write(shp_final, "shapefiles_saida/shp_final.shp")
 ```
+
+Caso vocês tenham interesse em se aprofundar com mapas no R, deixo duas sugestões de leitura:
+
+-   O livro [Geocomputation with R](https://r.geocompx.org/);
+-   [Um tutorial sobre análise espacial](https://www.spatialanalysisonline.com/An%20Introduction%20to%20Spatial%20Data%20Analysis%20in%20R.pdf).
+
+### Encerramento
 
 Era isso, pessoal!
 
